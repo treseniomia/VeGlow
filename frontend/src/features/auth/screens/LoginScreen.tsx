@@ -56,7 +56,7 @@ const LoginScreen = () => {
           <View style={styles.formContainer}>
             <Text style={styles.inputLabel}>Email Address</Text>
             <CustomInput
-              placeholder="mia@vegify.com"
+              placeholder="Enter your email"
               value={email}
               setValue={setEmail}
               keyboardType="email-address"

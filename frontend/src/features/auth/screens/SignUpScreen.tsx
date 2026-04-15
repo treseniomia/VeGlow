@@ -11,20 +11,22 @@ import {
 import {
   SafeAreaView,
   useSafeAreaInsets,
-} from "react-native-safe-area-context"; // IMPORT ITO, BOSS!
+} from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
+
+// Components & Constants
 import CustomInput from "@/components/CustomInput";
 import Header from "@/components/Header";
+import LegalModal from "@/features/auth/components/LegalModal"; // Siguraduhin na tama ang path nito
 import { VegifyTheme } from "@/constants/theme";
 
 // Modular Imports
-import { authStyles as styles } from "../styles/authStyles";
+import { authStyles as styles } from "../styles/authStyles"; // Paki-check kung tama ang path
 import { useRegister } from "../hooks/useRegister";
-import LegalModal from "../components/LegalModal";
-import { Link } from "expo-router";
 
 const SignUpScreen = () => {
-  const insets = useSafeAreaInsets(); // Hook para makuha ang height ng notch at gesture bar
+  const insets = useSafeAreaInsets();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -48,7 +50,6 @@ const SignUpScreen = () => {
   } = useRegister();
 
   return (
-    // SafeAreaView para hindi tumama sa top status bar ang Header
     <SafeAreaView style={styles.root}>
       <Header title="Create Account" showBackButton={true} />
 
@@ -58,7 +59,6 @@ const SignUpScreen = () => {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          // Dynamic padding sa baba base sa physical device navigation bar
           contentContainerStyle={[
             styles.scrollContent,
             { paddingBottom: insets.bottom + 20 },
@@ -75,14 +75,14 @@ const SignUpScreen = () => {
           <View style={styles.formContainer}>
             <Text style={styles.inputLabel}>Full Name</Text>
             <CustomInput
-              placeholder="Ex. Mia Myca"
+              placeholder="Ex. Mia Tresenio"
               value={name}
               setValue={setName}
             />
 
             <Text style={styles.inputLabel}>Email Address</Text>
             <CustomInput
-              placeholder="mia@vegify.com"
+              placeholder="Enter your email"
               value={email}
               setValue={setEmail}
               keyboardType="email-address"
@@ -170,16 +170,8 @@ const SignUpScreen = () => {
             )}
           </TouchableOpacity>
 
-          {/* <View style={styles.footer}>
-            <Text style={styles.footerText}>Already a member?</Text>
-            <TouchableOpacity>
-              <Text style={styles.footerLink}> Log In</Text>
-            </TouchableOpacity>
-          </View> */}
-
           <View style={styles.footer}>
             <Text style={styles.footerText}>Already a member?</Text>
-            {/* Gagamit tayo ng Link para sa navigation */}
             <Link href="/(auth)/signin" asChild>
               <TouchableOpacity>
                 <Text style={styles.footerLink}> Log In</Text>
