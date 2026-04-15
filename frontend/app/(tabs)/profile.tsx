@@ -1,12 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { ProfileScreen } from "@/features/profile/screens/ProfileScreen";
 
-export default function profile() {
-  return (
-    <View>
-      <Text>profile</Text>
-    </View>
-  );
+export default function ProfileRoute() {
+  return <ProfileScreen />;
 }
-
-const styles = StyleSheet.create({});
