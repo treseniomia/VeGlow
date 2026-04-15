@@ -6,6 +6,7 @@ export const VegifyTheme = {
     text: "#E8F5E9",
     border: "#3D5C04",
     error: "#FF5252",
+    placeholder: "#A9A9A9",
   },
   spacing: {
     xs: 4,

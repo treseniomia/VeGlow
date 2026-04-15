@@ -1,27 +1,38 @@
+import { useEffect } from "react";
 import { Stack } from "expo-router";
-import { VegifyTheme } from "@/constants/theme";
-import { StatusBar } from "expo-status-bar";
+import * as SecureStore from "expo-secure-store";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function RootLayout() {
+  const rehydrate = useAuthStore((state) => state.rehydrate);
+  const setHydrated = useAuthStore((state) => state.setHydrated);
+
+  useEffect(() => {
+    async function loadStorageData() {
+      try {
+        const token = await SecureStore.getItemAsync("userToken");
+        const userData = await SecureStore.getItemAsync("userData");
+
+        if (token && userData) {
+          // Gamitin ang rehydrate para i-set ang state nang walang storage conflict
+          rehydrate(JSON.parse(userData), token);
+        }
+      } catch (e) {
+        console.error("Failed to load storage", e);
+      } finally {
+        // Mahalaga ito: Kahit anong mangyari, tapos na ang loading check
+        setHydrated(true);
+      }
+    }
+
+    loadStorageData();
+  }, []);
+
   return (
-    <>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: VegifyTheme.colors.background,
-          },
-          headerTintColor: VegifyTheme.colors.primary,
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
-          contentStyle: {
-            backgroundColor: VegifyTheme.colors.background,
-          },
-        }}
-      >
-        <Stack.Screen name="index" options={{ title: "VEGIFY" }} />
-      </Stack>
-    </>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+    </Stack>
   );
 }
