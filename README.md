@@ -11,3 +11,5 @@ SSH -> ssh -R 80:localhost:5001 nokey@localhost.run
 Paste link sa .env ->
 
 RUN FRONTEND -> npx expo start | npx expo start --dev-client --lan
+
+SA POSTSERVICE.TS PALITAN DIN ANG BASE_URL 
