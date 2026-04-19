@@ -8,10 +8,10 @@ export default function TabsLayout() {
       screenOptions={{
         tabBarActiveTintColor: VegifyTheme.colors.primary,
         tabBarInactiveTintColor: "gray",
-        headerShown: false, // Malinis tingnan kung walang default header sa tabs
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: VegifyTheme.colors.background,
-          borderTopColor: "#333", // Dark border para sa dark theme mo
+          borderTopColor: "#333",
         },
       }}
     >
@@ -48,15 +48,6 @@ export default function TabsLayout() {
           title: "Messages",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubbles-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: "Alerts",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="notifications-outline" size={size} color={color} />
           ),
         }}
       />
