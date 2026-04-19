@@ -1,17 +1,27 @@
-import axios from "axios";
+// import axios from "axios";
 
-// Palitan ang IP na 'to ng actual Local IP ng Mac mo
+// console.log("Checking API URL:", process.env.EXPO_PUBLIC_API_URL);
+
 // const API = axios.create({
-//   // baseURL: "http://172.20.10.2:5001/api/auth",
-//   // baseURL: "https://7e716c78bdd0d1.lhr.life/api/auth",
-//   baseURL: process.env.EXPO_PUBLIC_API_URL,
+//   baseURL: `${process.env.EXPO_PUBLIC_API_URL}/api/auth`,
 // });
 
-console.log("Checking API URL:", process.env.EXPO_PUBLIC_API_URL);
+// export const registerUser = (userData: any) => API.post("/register", userData);
+// export const loginUser = (userData: any) => API.post("/login", userData);
+
+import axios from "axios";
+
+// Kunin ang base URL mula sa .env
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
+console.log("📡 API Base URL:", BASE_URL);
 
 const API = axios.create({
-  baseURL: `${process.env.EXPO_PUBLIC_API_URL}/api/auth`,
+  baseURL: BASE_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export const registerUser = (userData: any) => API.post("/register", userData);
-export const loginUser = (userData: any) => API.post("/login", userData);
+export default API;
