@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Alert } from "react-native";
-import { PostFormData } from "../types";
+import { MediaItem, PostFormData } from "../types";
 import { postService } from "../services/postService";
+import { uploadToCloudinary } from "../services/cloudinary.service";
+import * as ImagePicker from "expo-image-picker";
+import { Camera } from "expo-camera";
 
 export const useCreatePost = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
-
-  // Dynamic list for nutrients
   const [nutritions, setNutritions] = useState<
     { label: string; value: string }[]
   >([]);
@@ -19,6 +20,7 @@ export const useCreatePost = () => {
     ingredients: "",
     calories: "0",
     protein: "0",
+    media: [],
   });
 
   const updateField = (field: keyof PostFormData, value: string) => {
@@ -29,20 +31,137 @@ export const useCreatePost = () => {
     setNutritions((prev) => [...prev, { label, value }]);
   };
 
+  const removeNutrition = (index: number) => {
+    setNutritions((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const takePhoto = async (mode: "image" | "video" = "image") => {
+    const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+    const micStatus = await Camera.requestMicrophonePermissionsAsync();
+
+    if (cameraStatus.status !== "granted" || micStatus.status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "Kailangan ng camera at microphone access."
+      );
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes:
+        mode === "video"
+          ? ImagePicker.MediaTypeOptions.Videos
+          : ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 0.7,
+      videoMaxDuration: 60,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      const newMedia: MediaItem = {
+        uri: asset.uri,
+        type:
+          asset.type === "video" || asset.uri.endsWith(".mp4")
+            ? "video"
+            : "image",
+      };
+      setForm((prev) => ({
+        ...prev,
+        media: [...prev.media, newMedia].slice(0, 25),
+      }));
+    }
+  };
+
+  const pickMedia = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission Denied", "Access to gallery is required.");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsMultipleSelection: true,
+      selectionLimit: 25,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const selectedMedia: MediaItem[] = result.assets.map((asset) => ({
+        uri: asset.uri,
+        type: asset.type === "video" ? "video" : "image",
+      }));
+      setForm((prev) => ({
+        ...prev,
+        media: [...prev.media, ...selectedMedia].slice(0, 25),
+      }));
+    }
+  };
+
+  const removeMedia = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      media: prev.media.filter((_, i) => i !== index),
+    }));
+  };
+
   const handlePublish = async () => {
-    if (!form.title || !form.instructions) {
-      Alert.alert("Ops!", "Kailangan ng Title at Instructions.");
+    // STRICT VALIDATION: Dapat may title, instructions, media, at ingredients
+    if (
+      !form.title ||
+      !form.instructions ||
+      !form.ingredients ||
+      form.media.length === 0
+    ) {
+      Alert.alert(
+        "Wait lang, BOSS!",
+        "Kailangan kumpleto ang Title, Instructions, Ingredients, at Media."
+      );
       return;
     }
 
     setLoading(true);
     try {
-      // Isama natin ang nutritions array sa payload pag-send sa backend
-      const payload = { ...form, nutritionList: nutritions };
-      await postService.publishRecipe(payload as any);
+      let uploadedUrls: string[] = [];
+      if (form.media.length > 0) {
+        const uploadPromises = form.media.map((item) =>
+          uploadToCloudinary(item.uri, item.type)
+        );
+        uploadedUrls = await Promise.all(uploadPromises);
+      }
 
-      Alert.alert("Success!", "Recipe published na, BOSS!");
+      // STRICT INGREDIENTS LOGIC: I-convert ang string tungo sa clean Array
+      const ingredientsArray = form.ingredients
+        .split(/[\n,]+/) // Split by new line or comma
+        .map((item) => item.trim()) // Remove extra spaces
+        .filter((item) => item.length > 0); // Remove empty strings
+
+      const payload = {
+        ...form,
+        ingredients: ingredientsArray, // Ngayon ay Array na ito para sa MongoDB
+        nutritionList: nutritions,
+        mediaUrl: uploadedUrls[0] || "",
+      };
+
+      await postService.publishRecipe(payload as any);
+      Alert.alert(
+        "Success!",
+        "Recipe published na with Strict Ingredients, BOSS!"
+      );
+
+      setForm({
+        title: "",
+        prepTime: "",
+        instructions: "",
+        ingredients: "",
+        calories: "0",
+        protein: "0",
+        media: [],
+      });
+      setNutritions([]);
     } catch (error) {
+      console.error("Publish Error:", error);
       Alert.alert("Error", "Hindi na-save ang recipe.");
     } finally {
       setLoading(false);
@@ -58,5 +177,9 @@ export const useCreatePost = () => {
     isModalVisible,
     setModalVisible,
     addNutrition,
+    removeNutrition,
+    pickMedia,
+    takePhoto,
+    removeMedia,
   };
 };
