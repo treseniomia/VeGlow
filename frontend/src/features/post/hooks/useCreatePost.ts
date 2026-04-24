@@ -83,7 +83,7 @@ export const useCreatePost = () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
-      selectionLimit: 25,
+      selectionLimit: 6,
       quality: 0.7,
     });
 
