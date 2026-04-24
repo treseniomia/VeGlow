@@ -70,9 +70,7 @@ export default function CreatePostScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.sectionLabel}>
-            Media ({form.media.length}/25)
-          </Text>
+          <Text style={styles.sectionLabel}>Media ({form.media.length}/6)</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
