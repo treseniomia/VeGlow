@@ -9,11 +9,12 @@ interface AuthState {
   rehydrate: (user: any, token: string) => void;
   // Para sa actual login (nag-sa-save sa storage)
   login: (user: any, token: string) => Promise<void>;
+  updateUser: (updatedFields: any) => Promise<void>;
   setHydrated: (val: boolean) => void;
   logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
   isHydrated: false,
@@ -29,6 +30,22 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user, token, isHydrated: true });
     } catch (e) {
       console.error("Store Save Error:", e);
+    }
+  },
+
+  // 2. ADDED: The actual implementation of updateUser
+  updateUser: async (updatedFields) => {
+    try {
+      const currentUser = get().user; // 3. Get current user data from store
+      const newUser = { ...currentUser, ...updatedFields }; // 4. Merge old data with new fields (like profilePicture)
+
+      // 5. Update SecureStore so the change persists after app restart
+      await SecureStore.setItemAsync("userData", JSON.stringify(newUser));
+
+      // 6. Update the global state
+      set({ user: newUser });
+    } catch (e) {
+      console.error("Update Store Error:", e);
     }
   },
 

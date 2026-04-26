@@ -240,15 +240,9 @@ export default function CreatePostScreen() {
             onChangeText={(t) => updateField("ingredients", t)}
           />
 
-          {/* <Button
-            title={loading ? "Publishing..." : "Publish Recipe"}
-            onPress={handlePublish}
-            disabled={loading}
-          /> */}
           <View style={{ marginTop: 20, marginBottom: 40 }}>
             {loading ? (
               <View style={{ alignItems: "center", justifyContent: "center" }}>
-                {/* ActivityIndicator para sa professional loading feel */}
                 <ActivityIndicator
                   size="large"
                   color={VegifyTheme.colors.primary}
@@ -265,13 +259,12 @@ export default function CreatePostScreen() {
                 </Text>
               </View>
             ) : (
-              /* I-wrap natin ang Button sa View para safe ang layout */
               <Button
                 title="Publish Recipe"
                 onPress={handlePublish}
-                disabled={loading} // Pigilan ang double-tap
+                disabled={loading}
                 style={{
-                  opacity: loading ? 0.6 : 1, // Visual cue na disabled ang button
+                  opacity: loading ? 0.6 : 1,
                 }}
               />
             )}

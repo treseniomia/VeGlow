@@ -18,22 +18,32 @@ export const createPost = async (req: any, res: Response) => {
         .json({ message: "Missing title or instructions." });
     }
 
-    // Siguraduhin nating may user session galing sa protect middleware
     if (!req.user || !req.user._id) {
       return res
         .status(401)
         .json({ message: "Not authorized. No user found in request." });
     }
 
+    const parsedNutrition =
+      typeof nutritionList === "string"
+        ? JSON.parse(nutritionList)
+        : nutritionList;
+
     const newPost = new Post({
       user: req.user._id, // Ito ang nanggaling sa JWT
       title,
       prepTime: prepTime || "0 mins",
       instructions,
+      // ingredients: Array.isArray(ingredients)
+      // ? ingredients
+      //   : ingredients?.split(",").map((i: string) => i.trim()) || [],
+      // nutritionList: nutritionList || [],
       ingredients: Array.isArray(ingredients)
         ? ingredients
-        : ingredients?.split(",").map((i: string) => i.trim()) || [],
-      nutritionList: nutritionList || [],
+        : typeof ingredients === "string"
+        ? ingredients.split(",").map((i) => i.trim())
+        : [],
+      nutritionList: Array.isArray(parsedNutrition) ? parsedNutrition : [],
       mediaUrl: mediaUrl || "",
     });
 

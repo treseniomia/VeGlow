@@ -19,7 +19,11 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Please add a password"],
       minlength: 8,
-      select: false, // Hindi ito isasama sa queries by default para safe
+      select: false,
+    },
+    profilePicture: {
+      type: String,
+      default: "",
     },
   },
   {

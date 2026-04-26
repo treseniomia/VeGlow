@@ -9,11 +9,10 @@ export const authStyles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    // Tinanggal ang static paddingBottom para dynamic safe area ang gagamitin
   },
   headerContainer: {
     alignItems: "center",
-    marginVertical: 20, // Binawasan para mag-fit sa screen nang walang scroll
+    marginVertical: 20,
   },
   title: {
     fontSize: 28,
@@ -55,7 +54,7 @@ export const authStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 20,
-    marginBottom: 10, // Space bago ang gesture bar
+    marginBottom: 10,
   },
   footerText: { color: VegifyTheme.colors.text, opacity: 0.7 },
   footerLink: { color: VegifyTheme.colors.primary, fontWeight: "bold" },

@@ -1,27 +1,18 @@
-// import axios from "axios";
-
-// console.log("Checking API URL:", process.env.EXPO_PUBLIC_API_URL);
-
-// const API = axios.create({
-//   baseURL: `${process.env.EXPO_PUBLIC_API_URL}/api/auth`,
-// });
-
-// export const registerUser = (userData: any) => API.post("/register", userData);
-// export const loginUser = (userData: any) => API.post("/login", userData);
-
 import axios from "axios";
-
-// Kunin ang base URL mula sa .env
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-
-console.log("📡 API Base URL:", BASE_URL);
+import * as SecureStore from "expo-secure-store";
 
 const API = axios.create({
-  baseURL: BASE_URL,
+  baseURL: `${process.env.EXPO_PUBLIC_API_URL}/api`,
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+});
+
+// Interceptor para laging may dalang token ang requests
+API.interceptors.request.use(async (config) => {
+  const token = await SecureStore.getItemAsync("userToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default API;
