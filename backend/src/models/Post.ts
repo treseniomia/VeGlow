@@ -5,7 +5,7 @@ export interface IPost extends Document {
   title: string;
   prepTime: string;
   instructions: string;
-  ingredients: string[]; // Gagawin nating array para searchable
+  ingredients: string[];
   nutritionList: { label: string; value: string }[];
   mediaUrl?: string;
   createdAt: Date;

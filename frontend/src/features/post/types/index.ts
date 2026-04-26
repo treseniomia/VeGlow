@@ -3,8 +3,7 @@ export interface PostFormData {
   prepTime: string;
   instructions: string;
   ingredients: string;
-  calories: string;
-  protein: string;
+  nutritionList: { label: string; value: string }[];
   media: MediaItem[];
 }
 

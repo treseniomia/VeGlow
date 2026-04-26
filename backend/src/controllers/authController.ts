@@ -49,3 +49,29 @@ export const login = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+// --- UPDATE PROFILE LOGIC ---
+export const updateProfile = async (req: any, res: Response) => {
+  try {
+    const { profilePicture } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture },
+      { returnDocument: "after" }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      profilePicture: updatedUser.profilePicture,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};

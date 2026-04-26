@@ -14,15 +14,11 @@ import {
 } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-
-// Components & Constants
 import CustomInput from "@/components/CustomInput";
 import Header from "@/components/Header";
-import LegalModal from "@/features/auth/components/LegalModal"; // Siguraduhin na tama ang path nito
+import LegalModal from "@/features/auth/components/LegalModal";
 import { VegifyTheme } from "@/constants/theme";
-
-// Modular Imports
-import { authStyles as styles } from "../styles/authStyles"; // Paki-check kung tama ang path
+import { authStyles as styles } from "../styles/authStyles";
 import { useRegister } from "../hooks/useRegister";
 
 const SignUpScreen = () => {

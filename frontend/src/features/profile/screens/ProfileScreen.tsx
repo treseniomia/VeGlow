@@ -1,23 +1,50 @@
 import React from "react";
-import { Text, View, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { VegifyTheme } from "@/constants/theme";
 import { useProfile } from "../hooks/useProfile";
 import { profileStyles as styles } from "../styles/profileStyles";
+import { ProfileAvatar } from "../components/ProfileAvatar";
 
 export const ProfileScreen = () => {
-  const { user, handleLogout } = useProfile();
+  const {
+    user,
+    handleLogout,
+    takeProfilePhoto,
+    pickImageFromGallery,
+    updating,
+  } = useProfile();
+
+  const handleEditPhoto = () => {
+    Alert.alert(
+      "Update Profile Picture",
+      "Saan mo gustong kumuha ng bagong photo, BOSS?",
+      [
+        { text: "📷 Take Photo", onPress: takeProfilePhoto },
+        { text: "🖼️ Choose from Gallery", onPress: pickImageFromGallery },
+        { text: "Cancel", style: "cancel" },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.avatarPlaceholder}>
-          <Text style={styles.avatarText}>{user?.name?.charAt(0) || "U"}</Text>
-        </View>
+        <ProfileAvatar
+          uri={user?.profilePicture}
+          name={user?.name}
+          onPress={handleEditPhoto}
+          loading={updating}
+        />
         <Text style={styles.userName}>{user?.name || "User"}</Text>
-        <Text style={styles.userEmail}>
-          {user?.email || "No email provided"}
-        </Text>
+        <Text style={styles.userEmail}>{user?.email}</Text>
       </View>
 
       <View style={styles.menuContainer}>

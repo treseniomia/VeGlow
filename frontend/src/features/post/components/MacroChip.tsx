@@ -17,10 +17,10 @@ export const MacroChip = ({ label, value }: MacroChipProps) => (
 const styles = StyleSheet.create({
   card: {
     backgroundColor: VegifyTheme.colors.card,
-    borderRadius: 50, // Pill shape base sa Figma
+    borderRadius: 50,
     paddingVertical: 20,
     paddingHorizontal: 15,
-    width: "45%", // Para dalawa sa isang row
+    width: "45%",
     alignItems: "center",
     marginBottom: VegifyTheme.spacing.md,
   },

@@ -17,23 +17,19 @@ import { useRouter } from "expo-router";
 import CustomInput from "@/components/CustomInput";
 import Header from "@/components/Header";
 import { VegifyTheme } from "@/constants/theme";
-
-// Modular Imports
 import { authStyles as styles } from "../styles/authStyles";
 import { useLogin } from "../hooks/useLogin";
 
 const LoginScreen = () => {
   const insets = useSafeAreaInsets();
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
-  // Destructure functions mula sa useLogin hook
   const { email, setEmail, password, setPassword, loading, onLoginPressed } =
     useLogin();
 
   return (
     <SafeAreaView style={styles.root}>
-      {/* Ginagamit ang Header component para sa consistency */}
       <Header title="Login" showBackButton={true} />
 
       <KeyboardAvoidingView
@@ -60,7 +56,7 @@ const LoginScreen = () => {
               value={email}
               setValue={setEmail}
               keyboardType="email-address"
-              autoCapitalize="none" // Professional: Email should not auto-capitalize
+              autoCapitalize="none"
             />
 
             <Text style={styles.inputLabel}>Password</Text>

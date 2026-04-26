@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { MediaItem, PostFormData } from "../types";
 import { postService } from "../services/postService";
-import { uploadToCloudinary } from "../services/cloudinary.service";
+import { uploadToCloudinary } from "../../../services/cloudinary.service";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 
@@ -18,8 +18,7 @@ export const useCreatePost = () => {
     prepTime: "",
     instructions: "",
     ingredients: "",
-    calories: "0",
-    protein: "0",
+    nutritionList: [],
     media: [],
   });
 
@@ -48,10 +47,11 @@ export const useCreatePost = () => {
     }
 
     let result = await ImagePicker.launchCameraAsync({
-      mediaTypes:
-        mode === "video"
-          ? ImagePicker.MediaTypeOptions.Videos
-          : ImagePicker.MediaTypeOptions.Images,
+      // mediaTypes:
+      //   mode === "video"
+      //     ? ImagePicker.MediaTypeOptions.Videos
+      //     : ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: mode === "video" ? ["videos"] : ["images"],
       allowsEditing: false,
       quality: 0.7,
       videoMaxDuration: 60,
@@ -81,7 +81,7 @@ export const useCreatePost = () => {
     }
 
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ["images", "videos"],
       allowsMultipleSelection: true,
       selectionLimit: 6,
       quality: 0.7,
@@ -107,7 +107,7 @@ export const useCreatePost = () => {
   };
 
   const handlePublish = async () => {
-    // STRICT VALIDATION: Dapat may title, instructions, media, at ingredients
+    // STRICT VALIDATION: title, instructions, media, at ingredients
     if (
       !form.title ||
       !form.instructions ||
@@ -139,7 +139,10 @@ export const useCreatePost = () => {
 
       const payload = {
         ...form,
-        ingredients: ingredientsArray, // Ngayon ay Array na ito para sa MongoDB
+        ingredients: form.ingredients
+          .split(/[\n,]+/)
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0),
         nutritionList: nutritions,
         mediaUrl: uploadedUrls[0] || "",
       };
@@ -155,8 +158,7 @@ export const useCreatePost = () => {
         prepTime: "",
         instructions: "",
         ingredients: "",
-        calories: "0",
-        protein: "0",
+        nutritionList: nutritions,
         media: [],
       });
       setNutritions([]);

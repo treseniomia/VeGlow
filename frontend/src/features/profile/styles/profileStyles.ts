@@ -21,6 +21,7 @@ export const profileStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 15,
+    position: "relative",
   },
   avatarText: {
     color: "white",
@@ -36,6 +37,20 @@ export const profileStyles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginTop: 5,
+  },
+
+  cameraIconBadge: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 4,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   menuContainer: {
     marginTop: 20,

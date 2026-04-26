@@ -8,7 +8,7 @@ export const authService = {
   // Register a new user
   registerUser: async (userData: any) => {
     try {
-      const response = await API.post("/api/auth/register", userData);
+      const response = await API.post("/auth/register", userData);
       return response.data;
     } catch (error: any) {
       console.error(
@@ -22,7 +22,7 @@ export const authService = {
   // Login existing user
   loginUser: async (userData: any) => {
     try {
-      const response = await API.post("/api/auth/login", userData);
+      const response = await API.post("/auth/login", userData);
       return response.data;
     } catch (error: any) {
       console.error("❌ Login Error:", error.response?.data || error.message);
