@@ -9,6 +9,7 @@ export const createPost = async (req: any, res: Response) => {
       instructions,
       ingredients,
       nutritionList,
+      benefitsList,
       mediaUrl,
     } = req.body;
 
@@ -29,21 +30,23 @@ export const createPost = async (req: any, res: Response) => {
         ? JSON.parse(nutritionList)
         : nutritionList;
 
+    const parsedBenefits =
+      typeof benefitsList === "string"
+        ? JSON.parse(benefitsList)
+        : benefitsList;
+
     const newPost = new Post({
       user: req.user._id, // Ito ang nanggaling sa JWT
       title,
       prepTime: prepTime || "0 mins",
       instructions,
-      // ingredients: Array.isArray(ingredients)
-      // ? ingredients
-      //   : ingredients?.split(",").map((i: string) => i.trim()) || [],
-      // nutritionList: nutritionList || [],
       ingredients: Array.isArray(ingredients)
         ? ingredients
         : typeof ingredients === "string"
         ? ingredients.split(",").map((i) => i.trim())
         : [],
       nutritionList: Array.isArray(parsedNutrition) ? parsedNutrition : [],
+      benefitsList: Array.isArray(parsedBenefits) ? parsedBenefits : [],
       mediaUrl: mediaUrl || "",
     });
 

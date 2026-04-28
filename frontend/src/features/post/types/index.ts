@@ -4,6 +4,7 @@ export interface PostFormData {
   instructions: string;
   ingredients: string;
   nutritionList: { label: string; value: string }[];
+  benefitsList: { label: string; value: string }[];
   media: MediaItem[];
 }
 
