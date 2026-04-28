@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { InputField } from "../../../components/InputField";
 import { Button } from "../../../components/Button";
@@ -8,21 +8,34 @@ interface NutritionModalProps {
   visible: boolean;
   onClose: () => void;
   onSave: (type: string, value: string) => void;
+  title?: string;
+  isBenefit?: boolean;
 }
 
 export const NutritionModal = ({
   visible,
   onClose,
   onSave,
+  title = "Add Nutrition Info",
+  isBenefit = false,
 }: NutritionModalProps) => {
   const [label, setLabel] = useState("");
   const [value, setValue] = useState("");
 
-  const handleSave = () => {
-    if (label && value) {
-      onSave(label, value);
+  useEffect(() => {
+    if (visible) {
       setLabel("");
       setValue("");
+    }
+  }, [visible]);
+
+  const handleSave = () => {
+    // Kung Benefit, kahit walang value (ipapasa natin ay static string para sa backend)
+    if (isBenefit && label) {
+      onSave(label, "Benefit"); // Ipinasa ang "Benefit" as value para sumunod sa schema
+      onClose();
+    } else if (label && value) {
+      onSave(label, value);
       onClose();
     }
   };
@@ -31,22 +44,26 @@ export const NutritionModal = ({
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <Text style={styles.title}>Add Nutrition Info</Text>
+          <Text style={styles.title}>{title}</Text>
 
           <InputField
-            label="Nutrient Name"
-            placeholder="e.g. Potassium"
+            label={isBenefit ? "Benefit" : "Nutrient Name"}
+            placeholder={
+              isBenefit ? "e.g. Anti-inflammatory" : "e.g. Potassium"
+            }
             value={label}
             onChangeText={setLabel}
           />
 
-          <InputField
-            label="Amount (Grams/kcal)"
-            placeholder="e.g. 150"
-            keyboardType="numeric"
-            value={value}
-            onChangeText={setValue}
-          />
+          {!isBenefit && (
+            <InputField
+              label="Amount (Grams/kcal)"
+              placeholder="e.g. 150"
+              keyboardType="numeric"
+              value={value}
+              onChangeText={setValue}
+            />
+          )}
 
           <View style={styles.row}>
             <Button

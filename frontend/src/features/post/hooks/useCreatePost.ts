@@ -12,6 +12,11 @@ export const useCreatePost = () => {
   const [nutritions, setNutritions] = useState<
     { label: string; value: string }[]
   >([]);
+  const [benefits, setBenefits] = useState<{ label: string; value: string }[]>(
+    []
+  );
+
+  const [isBenefitModalVisible, setBenefitModalVisible] = useState(false);
 
   const [form, setForm] = useState<PostFormData>({
     title: "",
@@ -19,6 +24,7 @@ export const useCreatePost = () => {
     instructions: "",
     ingredients: "",
     nutritionList: [],
+    benefitsList: [],
     media: [],
   });
 
@@ -34,6 +40,14 @@ export const useCreatePost = () => {
     setNutritions((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const addBenefit = (label: string, value: string) => {
+    setBenefits((prev) => [...prev, { label, value }]);
+  };
+
+  const removeBenefit = (index: number) => {
+    setBenefits((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const takePhoto = async (mode: "image" | "video" = "image") => {
     const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
     const micStatus = await Camera.requestMicrophonePermissionsAsync();
@@ -47,10 +61,6 @@ export const useCreatePost = () => {
     }
 
     let result = await ImagePicker.launchCameraAsync({
-      // mediaTypes:
-      //   mode === "video"
-      //     ? ImagePicker.MediaTypeOptions.Videos
-      //     : ImagePicker.MediaTypeOptions.Images,
       mediaTypes: mode === "video" ? ["videos"] : ["images"],
       allowsEditing: false,
       quality: 0.7,
@@ -131,11 +141,10 @@ export const useCreatePost = () => {
         uploadedUrls = await Promise.all(uploadPromises);
       }
 
-      // STRICT INGREDIENTS LOGIC: I-convert ang string tungo sa clean Array
       const ingredientsArray = form.ingredients
-        .split(/[\n,]+/) // Split by new line or comma
-        .map((item) => item.trim()) // Remove extra spaces
-        .filter((item) => item.length > 0); // Remove empty strings
+        .split(/[\n,]+/)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
 
       const payload = {
         ...form,
@@ -144,6 +153,7 @@ export const useCreatePost = () => {
           .map((item) => item.trim())
           .filter((item) => item.length > 0),
         nutritionList: nutritions,
+        benefitsList: benefits,
         mediaUrl: uploadedUrls[0] || "",
       };
 
@@ -159,9 +169,11 @@ export const useCreatePost = () => {
         instructions: "",
         ingredients: "",
         nutritionList: nutritions,
+        benefitsList: [],
         media: [],
       });
       setNutritions([]);
+      setBenefits([]);
     } catch (error) {
       console.error("Publish Error:", error);
       Alert.alert("Error", "Hindi na-save ang recipe.");
@@ -180,6 +192,11 @@ export const useCreatePost = () => {
     setModalVisible,
     addNutrition,
     removeNutrition,
+    benefits,
+    isBenefitModalVisible,
+    setBenefitModalVisible,
+    addBenefit,
+    removeBenefit,
     pickMedia,
     takePhoto,
     removeMedia,

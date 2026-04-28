@@ -26,13 +26,18 @@ export default function CreatePostScreen() {
     updateField,
     handlePublish,
     nutritions,
+    benefits,
     isModalVisible,
     setModalVisible,
+    isBenefitModalVisible, // New state
+    setBenefitModalVisible, // New state
     addNutrition,
+    addBenefit,
     pickMedia,
     takePhoto,
     removeMedia,
     removeNutrition,
+    removeBenefit,
   } = useCreatePost();
 
   const handleAddMedia = () => {
@@ -225,6 +230,33 @@ export default function CreatePostScreen() {
             )}
           </View>
 
+          {/* --- BENEFITS SECTION --- */}
+          <View style={[styles.rowBetween, { marginTop: 15 }]}>
+            <Text style={styles.sectionLabel}>Benefits (Hold to delete)</Text>
+            <TouchableOpacity onPress={() => setBenefitModalVisible(true)}>
+              <Text style={styles.addInfoText}>+ ADD BENEFIT</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.chipContainer}>
+            {benefits.length === 0 ? (
+              <Text style={styles.emptyText}>No benefits info added yet.</Text>
+            ) : (
+              benefits.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onLongPress={() => removeBenefit(index)}
+                  style={[
+                    styles.chip,
+                    { borderColor: VegifyTheme.colors.primary },
+                  ]}
+                >
+                  <Text style={styles.chipLabel}>{item.label}</Text>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+
           <InputField
             label="Instructions"
             placeholder="Describe step by step..."
@@ -276,6 +308,13 @@ export default function CreatePostScreen() {
         visible={isModalVisible}
         onClose={() => setModalVisible(false)}
         onSave={addNutrition}
+      />
+      <NutritionModal
+        title="Add Benefit Info"
+        visible={isBenefitModalVisible}
+        onClose={() => setBenefitModalVisible(false)}
+        onSave={addBenefit}
+        isBenefit={true}
       />
     </View>
   );
