@@ -27,7 +27,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="reels"
         options={{
-          title: "Reels",
+          title: "Cook",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="videocam-outline" size={size} color={color} />
           ),
