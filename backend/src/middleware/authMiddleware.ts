@@ -2,11 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 
-export const protect = async (
-  req: any, // FIXED: Changed to any to bypass strict TS check for .user
-  res: Response,
-  next: NextFunction
-) => {
+export const protect = async (req: any, res: Response, next: NextFunction) => {
   let token;
 
   if (
@@ -20,7 +16,6 @@ export const protect = async (
         process.env.JWT_SECRET || "secret"
       );
 
-      // Hanapin ang user at i-attach sa request object
       req.user = await User.findById(decoded.id).select("-password");
       next();
     } catch (error) {

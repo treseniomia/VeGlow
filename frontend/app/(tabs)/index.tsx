@@ -1,10 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
-import { VegifyTheme } from "@/constants/theme";
+import React from "react";
+import HomeScreen from "@/features/home/screens/HomeScreen";
 
-export default function HomeScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text style={{ color: VegifyTheme.colors.primary }}>Home Screen</Text>
-    </View>
-  );
+export default function HomeTab() {
+  return <HomeScreen />;
 }

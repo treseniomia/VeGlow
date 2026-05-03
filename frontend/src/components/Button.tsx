@@ -28,7 +28,6 @@ export const Button = ({
   textStyle,
   variant = "primary",
 }: ButtonProps) => {
-  // Logic para sa colors base sa variant
   const getBackgroundColor = () => {
     if (disabled || loading) return VegifyTheme.colors.border;
     if (variant === "outline") return "transparent";
@@ -80,7 +79,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     marginVertical: VegifyTheme.spacing.sm,
-    // Soft shadow para sa professional look
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

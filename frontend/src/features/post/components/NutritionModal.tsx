@@ -30,9 +30,8 @@ export const NutritionModal = ({
   }, [visible]);
 
   const handleSave = () => {
-    // Kung Benefit, kahit walang value (ipapasa natin ay static string para sa backend)
     if (isBenefit && label) {
-      onSave(label, "Benefit"); // Ipinasa ang "Benefit" as value para sumunod sa schema
+      onSave(label, "Benefit");
       onClose();
     } else if (label && value) {
       onSave(label, value);

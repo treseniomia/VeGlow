@@ -1,9 +1,5 @@
 import API from "../../../api/api";
 
-/**
- * Authentication Service
- * Handles all network requests related to User Identity
- */
 export const authService = {
   // Register a new user
   registerUser: async (userData: any) => {

@@ -8,7 +8,7 @@ export interface IPost extends Document {
   ingredients: string[];
   nutritionList: { label: string; value: string }[];
   benefitsList: { label: string; value: string }[];
-  mediaUrl?: string;
+  mediaUrls: string[];
   createdAt: Date;
 }
 
@@ -32,8 +32,7 @@ const PostSchema: Schema = new Schema(
         value: { type: String, required: true },
       },
     ],
-
-    mediaUrl: { type: String, default: "" },
+    mediaUrls: [{ type: String, default: [] }],
   },
   { timestamps: true }
 );

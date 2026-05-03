@@ -16,7 +16,6 @@ export const uploadToCloudinary = async (
   data.append("file", fileToUpload);
   data.append("upload_preset", uploadPreset!);
 
-  // DYNAMIC RESOURCE TYPE:  binabago ang endpoint base sa file type
   const resourceType = fileType === "video" ? "video" : "image";
 
   try {

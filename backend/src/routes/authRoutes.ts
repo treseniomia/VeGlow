@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login, updateProfile } from "../controllers/authController"; // Check mo kung tama ang path
+import { register, login, updateProfile } from "../controllers/authController";
 import { protect } from "../middleware/authMiddleware";
 
 const router = express.Router();

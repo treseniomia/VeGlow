@@ -10,8 +10,6 @@ export const useProfile = () => {
   const router = useRouter();
   const { user, logout, updateUser } = useAuthStore();
   const [updating, setUpdating] = useState(false);
-
-  // Core logic for processing the update (Cloudinary + Backend)
   const processImageUpdate = async (uri: string) => {
     setUpdating(true);
     try {

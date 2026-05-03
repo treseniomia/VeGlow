@@ -10,7 +10,7 @@ export const createPost = async (req: any, res: Response) => {
       ingredients,
       nutritionList,
       benefitsList,
-      mediaUrl,
+      mediaUrls,
     } = req.body;
 
     if (!title || !instructions) {
@@ -36,7 +36,7 @@ export const createPost = async (req: any, res: Response) => {
         : benefitsList;
 
     const newPost = new Post({
-      user: req.user._id, // Ito ang nanggaling sa JWT
+      user: req.user._id, // Coming from JWT
       title,
       prepTime: prepTime || "0 mins",
       instructions,
@@ -47,7 +47,7 @@ export const createPost = async (req: any, res: Response) => {
         : [],
       nutritionList: Array.isArray(parsedNutrition) ? parsedNutrition : [],
       benefitsList: Array.isArray(parsedBenefits) ? parsedBenefits : [],
-      mediaUrl: mediaUrl || "",
+      mediaUrls: Array.isArray(mediaUrls) ? mediaUrls : [],
     });
 
     const savedPost = await newPost.save();
@@ -61,5 +61,32 @@ export const createPost = async (req: any, res: Response) => {
   } catch (error: any) {
     console.error("❌ BACKEND ERROR:", error.message);
     return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAllPosts = async (req: Request, res: Response) => {
+  try {
+    const posts = await Post.find()
+      .populate("user", "name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching posts", error });
+  }
+};
+
+export const getPostById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const post = await Post.findById(id).populate("user", "name");
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.status(200).json(post);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message || "Error fetching post" });
   }
 };

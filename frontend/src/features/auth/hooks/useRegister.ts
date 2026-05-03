@@ -55,7 +55,6 @@ export const useRegister = () => {
         password,
       });
 
-      // Destructure directly from the returned data
       const { token, _id, name: userName, email: userEmail } = data;
 
       await login({ _id, name: userName, email: userEmail }, token);

@@ -6,7 +6,6 @@ import { VegifyTheme } from "@/constants/theme";
 export default function Index() {
   const { token, isHydrated } = useAuthStore();
 
-  // 1. STICKY LOADING: Huwag gagalaw hangga't isHydrated is FALSE
   if (!isHydrated) {
     return (
       <View
@@ -22,7 +21,6 @@ export default function Index() {
     );
   }
 
-  // 2. Ngayong SURE na tayo na nabasa na ang storage, saka mag-redirect
   return token ? (
     <Redirect href="/(tabs)" />
   ) : (

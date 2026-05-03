@@ -72,7 +72,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
-  // createPost.styles.ts
   emptyText: {
     color: "#666",
     fontStyle: "italic",
