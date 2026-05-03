@@ -13,28 +13,51 @@ import { profileStyles as styles } from "../styles/profileStyles";
 interface Props {
   uri?: string;
   name?: string;
-  onPress: () => void;
-  loading: boolean;
+  onPress?: () => void;
+  loading?: boolean;
+  size?: number;
 }
 
-export const ProfileAvatar = ({ uri, name, onPress, loading }: Props) => (
-  <TouchableOpacity
-    style={styles.avatarPlaceholder}
-    onPress={onPress}
-    disabled={loading}
-  >
-    {loading ? (
-      <ActivityIndicator color="white" />
-    ) : uri ? (
-      <Image
-        source={{ uri }}
-        style={{ width: 80, height: 80, borderRadius: 40 }}
-      />
-    ) : (
-      <Text style={styles.avatarText}>{name?.charAt(0) || "U"}</Text>
-    )}
-    <View style={styles.cameraIconBadge}>
-      <Ionicons name="camera" size={16} color={VegifyTheme.colors.primary} />
-    </View>
-  </TouchableOpacity>
-);
+export const ProfileAvatar = ({
+  uri,
+  name,
+  onPress,
+  loading = false,
+  size = 80,
+}: Props) => {
+  const borderRadius = size / 2;
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.avatarPlaceholder,
+        { width: size, height: size, borderRadius: borderRadius },
+      ]}
+      onPress={onPress}
+      disabled={loading || !onPress}
+    >
+      {loading ? (
+        <ActivityIndicator color="white" />
+      ) : uri ? (
+        <Image
+          source={{ uri }}
+          style={{ width: size, height: size, borderRadius: borderRadius }}
+        />
+      ) : (
+        <Text style={[styles.avatarText, { fontSize: size * 0.4 }]}>
+          {name?.charAt(0) || "U"}
+        </Text>
+      )}
+
+      {size > 50 && (
+        <View style={styles.cameraIconBadge}>
+          <Ionicons
+            name="camera"
+            size={size * 0.2}
+            color={VegifyTheme.colors.primary}
+          />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};

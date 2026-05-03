@@ -14,13 +14,12 @@ export default function RootLayout() {
         const userData = await SecureStore.getItemAsync("userData");
 
         if (token && userData) {
-          // Gamitin ang rehydrate para i-set ang state nang walang storage conflict
+          // rehydrate to set the state without storage conflict
           rehydrate(JSON.parse(userData), token);
         }
       } catch (e) {
         console.error("Failed to load storage", e);
       } finally {
-        // Mahalaga ito: Kahit anong mangyari, tapos na ang loading check
         setHydrated(true);
       }
     }
@@ -33,6 +32,7 @@ export default function RootLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="recipe/[id]" options={{ presentation: "card" }} />
     </Stack>
   );
 }

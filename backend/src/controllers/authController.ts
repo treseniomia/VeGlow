@@ -29,7 +29,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-// --- LOGIN LOGIC (Siguraduhing nandito ito!) ---
+// --- LOGIN LOGIC ---
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;

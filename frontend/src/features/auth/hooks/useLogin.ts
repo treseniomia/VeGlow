@@ -35,7 +35,7 @@ export const useLogin = () => {
         password: password,
       });
 
-      // CORE LOGIC: Siniguro nating 'token' at 'user' details ang kinuha
+      // CORE LOGIC: Sinigurong 'token' at 'user' details ang kinuha
       // Note: Sa Axios Service, ang 'data' na ang mismong response body
       const { token, _id, name, email: userEmail } = data;
 
@@ -48,7 +48,6 @@ export const useLogin = () => {
       // I-save sa SecureStore at Zustand
       await login(userData, token);
 
-      // Redirect sa main app
       router.replace("/(tabs)");
     } catch (error: any) {
       console.log(

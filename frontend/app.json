@@ -50,7 +50,8 @@
           "cameraPermission": "Allow Vegify to access your camera.",
           "microphonePermission": "Allow Vegify to access your microphone."
         }
-      ]
+      ],
+      "expo-video"
     ],
     "extra": {
       "router": {},

@@ -29,8 +29,8 @@ export default function CreatePostScreen() {
     benefits,
     isModalVisible,
     setModalVisible,
-    isBenefitModalVisible, // New state
-    setBenefitModalVisible, // New state
+    isBenefitModalVisible,
+    setBenefitModalVisible,
     addNutrition,
     addBenefit,
     pickMedia,
@@ -230,7 +230,6 @@ export default function CreatePostScreen() {
             )}
           </View>
 
-          {/* --- BENEFITS SECTION --- */}
           <View style={[styles.rowBetween, { marginTop: 15 }]}>
             <Text style={styles.sectionLabel}>Benefits (Hold to delete)</Text>
             <TouchableOpacity onPress={() => setBenefitModalVisible(true)}>
