@@ -1,7 +1,7 @@
 export const VegifyTheme = {
   colors: {
-    background: "#1A2901", // Dark Green
-    primary: "#76A621", // Veggie Green
+    background: "#1A2901", 
+    primary: "#76A621",
     card: "#243A02",
     text: "#E8F5E9",
     border: "#3D5C04",
