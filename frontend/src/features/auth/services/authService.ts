@@ -1,7 +1,6 @@
 import API from "../../../api/api";
 
 export const authService = {
-  // Register a new user
   registerUser: async (userData: any) => {
     try {
       const response = await API.post("/auth/register", userData);
@@ -15,7 +14,6 @@ export const authService = {
     }
   },
 
-  // Login existing user
   loginUser: async (userData: any) => {
     try {
       const response = await API.post("/auth/login", userData);

@@ -35,17 +35,15 @@ export const useLogin = () => {
         password: password,
       });
 
-      // CORE LOGIC: Sinigurong 'token' at 'user' details ang kinuha
-      // Note: Sa Axios Service, ang 'data' na ang mismong response body
-      const { token, _id, name, email: userEmail } = data;
+      const { token, _id, name, email: userEmail, profilePicture } = data;
 
       const userData = {
         _id,
         name,
         email: userEmail,
+        profilePicture: profilePicture || "",
       };
 
-      // I-save sa SecureStore at Zustand
       await login(userData, token);
 
       router.replace("/(tabs)");

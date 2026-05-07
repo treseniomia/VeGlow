@@ -1,46 +1,50 @@
 import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import * as ImagePicker from "expo-image-picker";
-import api from "@/api/api";
 import { uploadToCloudinary } from "@/services/cloudinary.service";
+import { profileService } from "../services/profileService";
 
 export const useProfile = () => {
   const router = useRouter();
   const { user, logout, updateUser } = useAuthStore();
   const [updating, setUpdating] = useState(false);
-  const processImageUpdate = async (uri: string) => {
-    setUpdating(true);
-    try {
-      const imageUrl = await uploadToCloudinary(uri, "image");
 
-      await api.put("/auth/profile", {
-        profilePicture: imageUrl,
-      });
+  const processImageUpdate = useCallback(
+    async (uri: string) => {
+      setUpdating(true);
+      try {
+        const imageUrl = await uploadToCloudinary(uri, "image");
 
-      if (updateUser) {
-        await updateUser({ profilePicture: imageUrl });
+        const updatedUserFromServer = await profileService.updateAvatar(
+          imageUrl
+        );
+
+        if (updateUser) {
+          await updateUser(updatedUserFromServer);
+        }
+
+        Alert.alert("Success 🌿", "Updated na ang profile mo, BOSS!");
+      } catch (error: any) {
+        console.error("[PROFILE_UPDATE_ERROR]:", error.message);
+        Alert.alert(
+          "Update Failed",
+          "Hindi na-save ang image sa server. Check your connection."
+        );
+      } finally {
+        setUpdating(false);
       }
-
-      Alert.alert("Success! 🌿", "Updated na ang profile picture mo, BOSS.");
-    } catch (error: any) {
-      console.error(
-        "Upload Error Details:",
-        error.response?.data || error.message
-      );
-      Alert.alert("Error", "Hindi ma-upload ang picture. Try again later.");
-    } finally {
-      setUpdating(false);
-    }
-  };
+    },
+    [updateUser]
+  );
 
   const takeProfilePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
-        "Permission Denied",
-        "Kailangan namin ng camera access, BOSS."
+        "Permission Required",
+        "Kailangan namin ng camera access para sa profile photo."
       );
       return;
     }
@@ -61,8 +65,8 @@ export const useProfile = () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
-        "Permission Denied",
-        "Kailangan namin ng access sa gallery mo, BOSS."
+        "Permission Required",
+        "Kailangan namin ng gallery access, BOSS."
       );
       return;
     }
