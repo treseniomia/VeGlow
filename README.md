@@ -1,6 +1,6 @@
 # VegifyApp-Official
 
-Open the website of MongoDB and iconnect ang IP Address
+Open the website of MongoDB and iconnect ang IP ADDRESS
 
 RUN BACKEND -> npx ts-node src/index.ts
 
