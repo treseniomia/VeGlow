@@ -3,7 +3,7 @@ import User from "../models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// --- REGISTER LOGIC ---
+// --- REGISTER ---
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -14,22 +14,34 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      profilePicture: "",
+    });
+
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET || "secret",
       { expiresIn: "30d" }
     );
 
-    res
-      .status(201)
-      .json({ _id: user._id, name: user.name, email: user.email, token });
+    return res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      token,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    return res
+      .status(500)
+      .json({ message: "Server Error during registration" });
   }
 };
 
-// --- LOGIN LOGIC ---
+// --- LOGIN ---
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -41,37 +53,77 @@ export const login = async (req: Request, res: Response) => {
         process.env.JWT_SECRET || "secret",
         { expiresIn: "30d" }
       );
-      res.json({ _id: user._id, name: user.name, email: user.email, token });
+
+      return res.status(200).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        profilePicture: user.profilePicture || "",
+        token,
+      });
     } else {
-      res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error during login" });
   }
 };
 
-// --- UPDATE PROFILE LOGIC ---
-export const updateProfile = async (req: any, res: Response) => {
+// --- UPDATE PROFILE PICTURE (THE FIX) ---
+export const updateProfilePicture = async (req: any, res: Response) => {
   try {
     const { profilePicture } = req.body;
+    if (!profilePicture)
+      return res.status(400).json({ message: "No URL provided" });
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { profilePicture },
-      { returnDocument: "after" }
-    );
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    user.profilePicture = profilePicture;
+    await user.save();
 
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      profilePicture: updatedUser.profilePicture,
+    return res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      profilePicture: user.profilePicture,
+    });
+  } catch (error: any) {
+    console.error("PUT ERROR:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Update Failed", error: error.message });
+  }
+};
+
+// --- DELETE PROFILE PICTURE ---
+export const deleteProfilePicture = async (req: any, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.profilePicture = "";
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile picture removed",
+      user: {
+        _id: user._id,
+        profilePicture: "",
+      },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Delete Failed" });
+  }
+};
+
+// --- GET PROFILE ---
+export const getProfile = async (req: any, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).json({ message: "Server Error" });
   }
 };

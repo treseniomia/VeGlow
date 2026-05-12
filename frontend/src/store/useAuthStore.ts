@@ -18,6 +18,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isHydrated: false,
 
   rehydrate: (user, token) => {
+    console.log("REHYDRATING USER DATA:", user);
     set({ user, token, isHydrated: true });
   },
 
@@ -25,6 +26,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await SecureStore.setItemAsync("userToken", token);
       await SecureStore.setItemAsync("userData", JSON.stringify(user));
+
+      console.log("LOGIN SUCCESS - SAVED TO STORAGE:", user);
       set({ user, token, isHydrated: true });
     } catch (e) {
       console.error("Store Save Error:", e);
@@ -38,6 +41,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       await SecureStore.setItemAsync("userData", JSON.stringify(newUser));
 
+      console.log("ZUSTAND & SECURESTORE UPDATED:", newUser);
       set({ user: newUser });
     } catch (e) {
       console.error("Update Store Error:", e);

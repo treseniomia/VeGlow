@@ -12,6 +12,7 @@ import { VegifyTheme } from "@/constants/theme";
 import { useProfile } from "../hooks/useProfile";
 import { profileStyles as styles } from "../styles/profileStyles";
 import { ProfileAvatar } from "../components/ProfileAvatar";
+import { useEffect } from "react";
 
 export const ProfileScreen = () => {
   const {
@@ -21,6 +22,10 @@ export const ProfileScreen = () => {
     pickImageFromGallery,
     updating,
   } = useProfile();
+
+  useEffect(() => {
+    console.log("Current User in Profile Screen:", user);
+  }, [user]);
 
   const handleEditPhoto = () => {
     Alert.alert(

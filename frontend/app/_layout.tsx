@@ -4,8 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function RootLayout() {
-  const rehydrate = useAuthStore((state) => state.rehydrate);
-  const setHydrated = useAuthStore((state) => state.setHydrated);
+  const { rehydrate, setHydrated, isHydrated } = useAuthStore();
 
   useEffect(() => {
     async function loadStorageData() {
@@ -14,7 +13,6 @@ export default function RootLayout() {
         const userData = await SecureStore.getItemAsync("userData");
 
         if (token && userData) {
-          // rehydrate to set the state without storage conflict
           rehydrate(JSON.parse(userData), token);
         }
       } catch (e) {
@@ -23,16 +21,16 @@ export default function RootLayout() {
         setHydrated(true);
       }
     }
-
     loadStorageData();
   }, []);
+
+  if (!isHydrated) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="recipe/[id]" options={{ presentation: "card" }} />
     </Stack>
   );
 }
