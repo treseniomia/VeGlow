@@ -116,31 +116,6 @@ export const useCreatePost = () => {
     }));
   };
 
-  // const handlePublish = async () => {
-  //   // STRICT VALIDATION: title, instructions, media, at ingredients
-  //   if (
-  //     !form.title ||
-  //     !form.instructions ||
-  //     !form.ingredients ||
-  //     form.media.length === 0
-  //   ) {
-  //     Alert.alert(
-  //       "Wait lang, BOSS!",
-  //       "Kailangan kumpleto ang Title, Instructions, Ingredients, at Media."
-  //     );
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   try {
-  //     let uploadedUrls: string[] = [];
-  //     if (form.media.length > 0) {
-  //       const uploadPromises = form.media.map((item) =>
-  //         uploadToCloudinary(item.uri, item.type)
-  //       );
-  //       uploadedUrls = await Promise.all(uploadPromises);
-  //     }
-
   const handlePublish = async () => {
     // 1. Validation
     if (
@@ -158,7 +133,6 @@ export const useCreatePost = () => {
 
     setLoading(true);
     try {
-      // 2. Uploading process - Dito lang dapat lumalabas ang uploadedUrls
       let uploadedUrls: string[] = [];
       if (form.media.length > 0) {
         const uploadPromises = form.media.map((item) =>
@@ -172,24 +146,6 @@ export const useCreatePost = () => {
         .map((item) => item.trim())
         .filter((item) => item.length > 0);
 
-      // const payload = {
-      //   ...form,
-      //   ingredients: form.ingredients
-      //     .split(/[\n,]+/)
-      //     .map((item) => item.trim())
-      //     .filter((item) => item.length > 0),
-      //   nutritionList: nutritions,
-      //   benefitsList: benefits,
-      //   // mediaUrl: uploadedUrls[0] || "",
-      //   mediaUrls: uploadedUrls,
-      // };
-
-      // await postService.publishRecipe(payload as any);
-      // Alert.alert(
-      //   "Success!",
-      //   "Recipe published na with Strict Ingredients, BOSS!"
-      // );
-
       const payload = {
         title: form.title,
         prepTime: form.prepTime,
@@ -197,31 +153,11 @@ export const useCreatePost = () => {
         ingredients: ingredientsArray,
         nutritionList: nutritions,
         benefitsList: benefits,
-        mediaUrls: uploadedUrls, // Ito ang array ng strings para sa database
+        mediaUrls: uploadedUrls,
       };
 
-      // 4. Send to Backend
       await postService.publishRecipe(payload as any);
       Alert.alert("Success!", "Recipe published na, BOSS!");
-
-      //     setForm({
-      //       title: "",
-      //       prepTime: "",
-      //       instructions: "",
-      //       ingredients: "",
-      //       nutritionList: nutritions,
-      //       benefitsList: [],
-      //       media: [],
-      //     });
-      //     setNutritions([]);
-      //     setBenefits([]);
-      //   } catch (error) {
-      //     console.error("Publish Error:", error);
-      //     Alert.alert("Error", "Hindi na-save ang recipe.");
-      //   } finally {
-      //     setLoading(false);
-      //   }
-      // };
 
       setForm({
         title: "",
