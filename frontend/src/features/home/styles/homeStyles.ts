@@ -1,5 +1,7 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 import { VegifyTheme } from "@/constants/theme";
+
+const { width } = Dimensions.get("window");
 
 export const homeStyles = StyleSheet.create({
   container: {
@@ -19,5 +21,126 @@ export const homeStyles = StyleSheet.create({
     color: "#99CC33",
     fontSize: 16,
     opacity: 0.6,
+  },
+  // Recipe Detail Styles
+  scrollContent: { paddingBottom: 40 },
+  headerContent: { padding: 20 },
+  badge: {
+    backgroundColor: "#2D3E10",
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  badgeText: { color: "#99CC33", fontWeight: "bold", fontSize: 12 },
+  title: { color: "white", fontSize: 32, fontWeight: "bold" },
+  author: { color: "#A0A0A0", marginTop: 5, fontSize: 14 },
+  sectionTitle: {
+    color: "#99CC33",
+    fontSize: 22,
+    fontWeight: "bold",
+    paddingHorizontal: 20,
+    marginTop: 25,
+  },
+  nutritionGrid: { flexDirection: "row", flexWrap: "wrap", padding: 15 },
+  nutritionCard: {
+    backgroundColor: "#2D3E10",
+    width: "45%",
+    margin: "2.5%",
+    padding: 15,
+    borderRadius: 20,
+    alignItems: "center",
+  },
+  nutriLabel: { color: "#A0A0A0", fontSize: 12, textTransform: "uppercase" },
+  nutriValue: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+  benefitContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  benefitBadge: {
+    backgroundColor: "#25330B",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 15,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  benefitText: { color: "#99CC33", fontSize: 13 },
+  instructionsText: {
+    color: "#E0E0E0",
+    paddingHorizontal: 20,
+    marginTop: 10,
+    lineHeight: 22,
+    fontSize: 15,
+  },
+  ingredientsCard: {
+    backgroundColor: "#25330B",
+    margin: 20,
+    padding: 20,
+    borderRadius: 25,
+  },
+  ingredientRow: {
+    paddingVertical: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#3A4D1A",
+  },
+  ingredientText: { color: "white", fontSize: 16 },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 20,
+    width: "100%",
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#99CC33",
+    marginHorizontal: 4,
+  },
+  arrowButton: {
+    position: "absolute",
+    top: "45%",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: 25,
+    padding: 8,
+    zIndex: 10,
+  },
+  actionContainer: {
+    paddingHorizontal: 20,
+    marginTop: 30,
+    alignItems: "center",
+  },
+  cookButton: {
+    backgroundColor: "#99CC33",
+    flexDirection: "row",
+    width: "100%",
+    height: 55,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cookButtonText: {
+    color: "black",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+  addMealButton: { flexDirection: "row", marginTop: 20, alignItems: "center" },
+  addMealText: {
+    color: "#99CC33",
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -17,4 +17,14 @@ export const profileService = {
     const response = await API.delete("/auth/profile/picture");
     return response.data;
   },
+
+  deletePost: async (postId: string) => {
+    const response = await API.delete(`/posts/${postId}`);
+    return response.data;
+  },
+
+  updatePost: async (postId: string, postData: any) => {
+    const response = await API.patch(`/posts/${postId}`, postData);
+    return response.data;
+  },
 };
