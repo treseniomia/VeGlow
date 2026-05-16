@@ -1,26 +1,19 @@
-import { useState, useEffect } from "react";
-import { homeService } from "../services/homeService";
+import { useEffect } from "react";
+import { usePostStore } from "@/services/usePostStore";
 
 export const useFetchPostById = (postId: string) => {
-  const [post, setPost] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchPost = async () => {
-    try {
-      setLoading(true);
-      const data = await homeService.getPostById(postId);
-      setPost(data);
-    } catch (err) {
-      setError("Failed to load recipe details.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { currentPost, loading, error, fetchPostById } = usePostStore();
 
   useEffect(() => {
-    if (postId) fetchPost();
+    if (postId) {
+      fetchPostById(postId);
+    }
   }, [postId]);
 
-  return { post, loading, error, refetch: fetchPost };
+  return {
+    post: currentPost,
+    loading,
+    error,
+    refetch: () => fetchPostById(postId),
+  };
 };
