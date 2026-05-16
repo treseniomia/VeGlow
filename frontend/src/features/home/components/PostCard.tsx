@@ -1,13 +1,21 @@
-import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import { VegifyTheme } from "../../../constants/theme";
-import { router, useRouter } from "expo-router";
+import { router } from "expo-router";
+import { usePostStore } from "@/services/usePostStore";
+import React from "react";
 
 const PostCard = ({ post }: { post: any }) => {
+  const toggleLike = usePostStore((state) => state.toggleLikeOptimistic);
+
   const handleNavigate = () => {
     router.push(`/recipe/${post._id}`);
   };
+
+  const handleLikePress = () => {
+    toggleLike(post._id);
+  };
+
+  const iconName = "leaf" as const;
 
   return (
     <View style={styles.card}>
@@ -19,24 +27,39 @@ const PostCard = ({ post }: { post: any }) => {
 
         <View style={styles.engagementOverlay}>
           <View style={styles.iconGroup}>
-            <TouchableOpacity style={styles.circleIcon}>
-              <MaterialCommunityIcons name="leaf" size={24} color="#99CC33" />
+            <TouchableOpacity
+              style={[
+                styles.circleIcon,
+                post.isLiked && { backgroundColor: "rgba(153, 204, 51, 0.3)" },
+              ]}
+              onPress={handleLikePress}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons
+                name={iconName}
+                size={24}
+                color={post.isLiked ? "#99CC33" : "rgba(255, 255, 255, 0.7)"}
+              />
             </TouchableOpacity>
-            <Text style={styles.countText}>24.5K</Text>
+            <Text
+              style={[styles.countText, !post.isLiked && { color: "white" }]}
+            >
+              {post.likesCount ?? 0}
+            </Text>
           </View>
 
           <View style={styles.iconGroup}>
             <TouchableOpacity style={styles.circleIcon}>
               <Ionicons name="chatbubble-outline" size={22} color="white" />
             </TouchableOpacity>
-            <Text style={styles.countText}>1.5K</Text>
+            <Text style={[styles.countText, { color: "white" }]}>1.5K</Text>
           </View>
 
           <View style={styles.iconGroup}>
             <TouchableOpacity style={styles.circleIcon}>
               <Ionicons name="share-social-outline" size={22} color="white" />
             </TouchableOpacity>
-            <Text style={styles.countText}>1.2K</Text>
+            <Text style={[styles.countText, { color: "white" }]}>1.2K</Text>
           </View>
         </View>
       </View>

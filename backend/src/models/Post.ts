@@ -9,7 +9,9 @@ export interface IPost extends Document {
   nutritionList: { label: string; value: string }[];
   benefitsList: { label: string; value: string }[];
   mediaUrls: string[];
+  likesCount: number;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const PostSchema: Schema = new Schema(
@@ -33,8 +35,17 @@ const PostSchema: Schema = new Schema(
       },
     ],
     mediaUrls: [{ type: String, default: [] }],
+
+    likesCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    versionKey: false,
+  }
 );
 
 export default mongoose.model<IPost>("Post", PostSchema);

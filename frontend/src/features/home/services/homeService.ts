@@ -10,4 +10,9 @@ export const homeService = {
     const response = await api.get(`/posts/${id}`);
     return response.data;
   },
+
+  toggleLike: async (postId: string) => {
+    const response = await api.post(`/posts/${postId}/like`);
+    return response.data;
+  },
 };

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
+import { usePostStore } from "@/services/usePostStore";
 
 interface AuthState {
   user: any | null;
@@ -53,6 +54,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     await SecureStore.deleteItemAsync("userToken");
     await SecureStore.deleteItemAsync("userData");
+
+    usePostStore.getState().clearCache();
+
     set({ user: null, token: null, isHydrated: true });
   },
 }));
