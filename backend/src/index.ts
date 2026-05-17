@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
 import { v2 as cloudinary } from "cloudinary";
+import commentRoutes from "./routes/commentRoutes";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const mongoURI = process.env.MONGO_URI || "";
+
 mongoose
   .connect(mongoURI)
   .then(() => console.log("✅ DATABASE: Connected to Vegify MongoDB Atlas"))
@@ -35,6 +37,7 @@ app.get("/", (req: Request, res: Response) => {
 // expect /api prefix
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
 
 app.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`🚀 SERVER: Running at port ${PORT}`);
