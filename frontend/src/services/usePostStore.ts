@@ -12,6 +12,7 @@ interface PostState {
   fetchPostById: (id: string) => Promise<void>;
   toggleLikeOptimistic: (postId: string) => Promise<void>;
   clearCache: () => void;
+  updateCommentsCount: (postId: string, delta: number) => void;
 }
 
 export const usePostStore = create<PostState>((set, get) => ({
@@ -48,7 +49,30 @@ export const usePostStore = create<PostState>((set, get) => ({
 
   clearCache: () => {
     set({ posts: [], currentPost: null, error: null });
-    console.log("🧼 POST_STORE CACHE PURGED: Successfully swapped context!");
+    console.log("🧼 POST_STORE_CACHE PURGED: Successfully swapped context!");
+  },
+
+  updateCommentsCount: (postId: string, delta: number) => {
+    set((state) => ({
+      posts: state.posts.map((post) =>
+        post._id === postId
+          ? {
+              ...post,
+              commentsCount: Math.max(0, (post.commentsCount || 0) + delta),
+            }
+          : post,
+      ),
+      currentPost:
+        state.currentPost && state.currentPost._id === postId
+          ? {
+              ...state.currentPost,
+              commentsCount: Math.max(
+                0,
+                (state.currentPost.commentsCount || 0) + delta,
+              ),
+            }
+          : state.currentPost,
+    }));
   },
 
   toggleLikeOptimistic: async (postId: string) => {
@@ -95,7 +119,7 @@ export const usePostStore = create<PostState>((set, get) => ({
                   isLiked: serverResponse.isLiked,
                   likesCount: serverResponse.likesCount,
                 }
-              : p
+              : p,
           ),
           currentPost:
             state.currentPost && state.currentPost._id === postId
@@ -110,7 +134,7 @@ export const usePostStore = create<PostState>((set, get) => ({
     } catch (error) {
       console.error(
         "❌ LIKE_SYNC_CRITICAL_ERROR: Rolling back client state store.",
-        error
+        error,
       );
       set({ posts: previousPosts, currentPost: previousCurrentPost });
     }
