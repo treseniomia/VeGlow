@@ -13,6 +13,7 @@ import { useFetchPostById } from "../hooks/useFetchPostById";
 import { usePostStore } from "@/services/usePostStore";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
+import { router } from "expo-router";
 import { homeStyles as styles } from "../styles/homeStyles";
 import { RecipeMediaCarousel } from "../components/RecipeMediaCarousel";
 import { IPost } from "../types";
@@ -44,6 +45,12 @@ const RecipeDetailScreen = ({ postId }: Props) => {
       }
     } catch (err: any) {
       console.error("❌ SHARE_EXECUTION_FAILED:", err.message);
+    }
+  };
+
+  const handleNavigateComments = () => {
+    if (post?._id) {
+      router.push(`/comment/${post._id}`);
     }
   };
 
@@ -140,42 +147,38 @@ const RecipeDetailScreen = ({ postId }: Props) => {
             marginBottom: 16,
           }}
         >
-          {/* LIKE INTERACTION HANDLER */}
           <TouchableOpacity
             onPress={handleLikePress}
             style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            activeOpacity={0.7}
           >
-            <View
-              style={[
-                circleIconStyle,
-                post.isLiked && { backgroundColor: "rgba(153, 204, 51, 0.15)" },
-              ]}
-            >
-              <Ionicons
-                name={post.isLiked ? "leaf" : "leaf-outline"}
-                size={20}
-                color={post.isLiked ? "#99CC33" : "white"}
-              />
+            <View style={[circleIconStyle]}>
+              <View style={{ transform: [{ scaleX: -1 }] }}>
+                <Ionicons
+                  name={post.isLiked ? "leaf" : "leaf-outline"}
+                  size={20}
+                  color={post.isLiked ? "#99CC33" : "white"}
+                />
+              </View>
             </View>
+
             <Text style={{ color: "white", fontSize: 14, fontWeight: "500" }}>
               {post.likesCount ?? 0}
             </Text>
           </TouchableOpacity>
 
-          {/* COMMENT INTERACTION HANDLER */}
           <TouchableOpacity
             style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
-            onPress={() => console.log("💬 Open Comments Sheets Triggered")}
+            onPress={handleNavigateComments}
           >
             <View style={circleIconStyle}>
               <Ionicons name="chatbubble-outline" size={20} color="white" />
             </View>
             <Text style={{ color: "white", fontSize: 14, fontWeight: "500" }}>
-              Comment
+              {post.commentsCount ?? 0}
             </Text>
           </TouchableOpacity>
 
-          {/* SHARE INTERACTION HANDLER */}
           <TouchableOpacity
             onPress={handleSharePress}
             style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
@@ -183,9 +186,6 @@ const RecipeDetailScreen = ({ postId }: Props) => {
             <View style={circleIconStyle}>
               <Ionicons name="share-social-outline" size={20} color="white" />
             </View>
-            <Text style={{ color: "white", fontSize: 14, fontWeight: "500" }}>
-              Share
-            </Text>
           </TouchableOpacity>
         </View>
 

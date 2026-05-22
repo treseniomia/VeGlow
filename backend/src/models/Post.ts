@@ -10,6 +10,7 @@ export interface IPost extends Document {
   benefitsList: { label: string; value: string }[];
   mediaUrls: string[];
   likesCount: number;
+  commentsCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,11 +42,16 @@ const PostSchema: Schema = new Schema(
       default: 0,
       min: 0,
     },
+    commentsCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 export default mongoose.model<IPost>("Post", PostSchema);

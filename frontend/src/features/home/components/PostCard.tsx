@@ -7,8 +7,12 @@ import React from "react";
 const PostCard = ({ post }: { post: any }) => {
   const toggleLike = usePostStore((state) => state.toggleLikeOptimistic);
 
-  const handleNavigate = () => {
+  const handleNavigateRecipe = () => {
     router.push(`/recipe/${post._id}`);
+  };
+
+  const handleNavigateComments = () => {
+    router.push(`/comment/${post._id}?authorId=${post.user?._id || ""}`);
   };
 
   const handleLikePress = () => {
@@ -49,10 +53,16 @@ const PostCard = ({ post }: { post: any }) => {
           </View>
 
           <View style={styles.iconGroup}>
-            <TouchableOpacity style={styles.circleIcon}>
+            <TouchableOpacity
+              style={styles.circleIcon}
+              onPress={handleNavigateComments}
+              activeOpacity={0.7}
+            >
               <Ionicons name="chatbubble-outline" size={22} color="white" />
             </TouchableOpacity>
-            <Text style={[styles.countText, { color: "white" }]}>1.5K</Text>
+            <Text style={[styles.countText, { color: "white" }]}>
+              {post.commentsCount ?? 0}
+            </Text>
           </View>
 
           <View style={styles.iconGroup}>
@@ -86,7 +96,10 @@ const PostCard = ({ post }: { post: any }) => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.recipeButton} onPress={handleNavigate}>
+        <TouchableOpacity
+          style={styles.recipeButton}
+          onPress={handleNavigateRecipe}
+        >
           <Text style={styles.recipeButtonText}>View Full Recipe</Text>
         </TouchableOpacity>
       </View>

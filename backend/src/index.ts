@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
 import { v2 as cloudinary } from "cloudinary";
 import commentRoutes from "./routes/commentRoutes";
+import { errorHandler } from "./middleware/errorMiddleware";
 
 dotenv.config();
 
@@ -38,6 +39,9 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
+
+// CRITICAL SENIOR MOVE: Dapat nasa pinakababa ng lahat ng routers para gumana ang interceptor!
+app.use(errorHandler);
 
 app.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`🚀 SERVER: Running at port ${PORT}`);

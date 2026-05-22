@@ -2,6 +2,7 @@ import express from "express";
 import {
   createComment,
   getCommentsByPost,
+  getRepliesForComment,
   deleteComment,
   toggleCommentLike,
   updateComment,
@@ -10,10 +11,9 @@ import { protect, optionalProtect } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-// Public view endpoint na may optional authentication reading layer para sa validation
 router.get("/post/:postId", optionalProtect, getCommentsByPost);
+router.get("/:commentId/replies", optionalProtect, getRepliesForComment);
 
-// Strictly private active transactions
 router.post("/", protect, createComment);
 router.put("/:commentId", protect, updateComment);
 router.delete("/:commentId", protect, deleteComment);
