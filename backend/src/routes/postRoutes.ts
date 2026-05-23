@@ -9,6 +9,7 @@ import {
   togglePostLike,
 } from "../controllers/postController";
 import { protect, optionalProtect } from "../middleware/authMiddleware";
+import { incrementShareCount } from "../controllers/postController";
 
 const router = express.Router();
 
@@ -32,5 +33,7 @@ router.patch("/:id", protect, updatePost);
 router.delete("/:id", protect, deletePost);
 
 router.post("/:postId/like", protect, togglePostLike);
+
+router.patch("/:id/share-increment", incrementShareCount);
 
 export default router;

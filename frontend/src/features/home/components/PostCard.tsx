@@ -1,11 +1,27 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Animated,
+  Pressable,
+} from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { usePostStore } from "@/services/usePostStore";
-import React from "react";
+import React, { useState, useRef } from "react";
+import {
+  handleCopyRecipeLink,
+  handleNativeShareRecipe,
+} from "@/utils/shareHelper";
 
 const PostCard = ({ post }: { post: any }) => {
   const toggleLike = usePostStore((state) => state.toggleLikeOptimistic);
+
+  const [shareMenuVisible, setShareMenuVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(300)).current;
 
   const handleNavigateRecipe = () => {
     router.push(`/recipe/${post._id}`);
@@ -17,6 +33,23 @@ const PostCard = ({ post }: { post: any }) => {
 
   const handleLikePress = () => {
     toggleLike(post._id);
+  };
+
+  const openShareMenu = () => {
+    setShareMenuVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeShareMenu = () => {
+    Animated.timing(slideAnim, {
+      toValue: 300,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => setShareMenuVisible(false));
   };
 
   const iconName = "leaf" as const;
@@ -66,10 +99,22 @@ const PostCard = ({ post }: { post: any }) => {
           </View>
 
           <View style={styles.iconGroup}>
-            <TouchableOpacity style={styles.circleIcon}>
-              <Ionicons name="share-social-outline" size={22} color="white" />
+            <TouchableOpacity
+              onPress={openShareMenu}
+              activeOpacity={0.7}
+              style={styles.circleIcon}
+            >
+              <View>
+                <Ionicons
+                  name="share-social-outline"
+                  size={22}
+                  color="#ffffff"
+                />
+              </View>
             </TouchableOpacity>
-            <Text style={[styles.countText, { color: "white" }]}>1.2K</Text>
+            <Text style={[styles.countText, { color: "white" }]}>
+              {post.sharesCount || 0}
+            </Text>
           </View>
         </View>
       </View>
@@ -103,6 +148,57 @@ const PostCard = ({ post }: { post: any }) => {
           <Text style={styles.recipeButtonText}>View Full Recipe</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={shareMenuVisible}
+        transparent
+        animationType="none"
+        onRequestClose={closeShareMenu}
+      >
+        <Pressable style={styles.modalOverlay} onPress={closeShareMenu}>
+          <Animated.View
+            style={[
+              styles.slidingSheetContainer,
+              { transform: [{ translateY: slideAnim }] },
+            ]}
+          >
+            <View style={styles.sheetHandleIndicator} />
+            <Text style={styles.sheetHeaderTitle}>Share Recipe</Text>
+
+            <TouchableOpacity
+              style={styles.sheetActionButtonRow}
+              onPress={() => {
+                closeShareMenu();
+                handleCopyRecipeLink(post._id, post.title, (newCount) => {
+                  post.sharesCount = newCount;
+                });
+              }}
+            >
+              <View style={styles.actionIconContainer}>
+                <Ionicons name="link-outline" size={20} color="#99CC33" />
+              </View>
+              <Text style={styles.actionButtonLabelText}>Copy Recipe Link</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetActionButtonRow}
+              onPress={() => {
+                closeShareMenu();
+                handleNativeShareRecipe(post._id, post.title, (newCount) => {
+                  post.sharesCount = newCount;
+                });
+              }}
+            >
+              <View style={styles.actionIconContainer}>
+                <Ionicons name="apps-outline" size={20} color="#99CC33" />
+              </View>
+              <Text style={styles.actionButtonLabelText}>
+                Share via other Apps
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -170,6 +266,61 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   recipeButtonText: { color: "#1A2902", fontWeight: "bold", fontSize: 16 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+  },
+  slidingSheetContainer: {
+    backgroundColor: "#162202",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    paddingTop: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  sheetHandleIndicator: {
+    width: 40,
+    height: 5,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 3,
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  sheetHeaderTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  sheetActionButtonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.02)",
+  },
+  actionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(153, 204, 51, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  actionButtonLabelText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "500",
+  },
 });
 
 export default PostCard;
