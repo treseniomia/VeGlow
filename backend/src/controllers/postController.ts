@@ -275,3 +275,36 @@ export const togglePostLike = async (
       .json({ success: false, message: "Internal server error." });
   }
 };
+
+export const incrementShareCount = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      id,
+      { $inc: { sharesCount: 1 } },
+      { returnDocument: "after" }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({
+        success: false,
+        message: "Recipe post target not found.",
+      });
+    }
+
+    const postObject = updatedPost as any;
+
+    return res.status(200).json({
+      success: true,
+      sharesCount: postObject.sharesCount || 0,
+    });
+  } catch (error: any) {
+    console.error("Error in incrementShareCount controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error processing share increment request.",
+      error: error.message,
+    });
+  }
+};

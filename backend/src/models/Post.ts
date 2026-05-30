@@ -47,11 +47,15 @@ const PostSchema: Schema = new Schema(
       default: 0,
       min: 0,
     },
+    sharesCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
 export default mongoose.model<IPost>("Post", PostSchema);

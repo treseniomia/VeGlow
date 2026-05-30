@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   ScrollView,
   View,
   ActivityIndicator,
   Text,
   TouchableOpacity,
-  Share,
+  Modal,
+  Animated,
+  Pressable,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HeaderWithBack } from "@/components/HeaderWithBack";
@@ -17,6 +20,10 @@ import { router } from "expo-router";
 import { homeStyles as styles } from "../styles/homeStyles";
 import { RecipeMediaCarousel } from "../components/RecipeMediaCarousel";
 import { IPost } from "../types";
+import {
+  handleCopyRecipeLink,
+  handleNativeShareRecipe,
+} from "@/utils/shareHelper";
 
 interface Props {
   postId: string;
@@ -27,6 +34,9 @@ const RecipeDetailScreen = ({ postId }: Props) => {
   const { loading, error } = useFetchPostById(postId);
   const isFocused = useIsFocused();
 
+  const [shareMenuVisible, setShareMenuVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(300)).current;
+
   const post =
     posts.find((p) => p._id === postId) || usePostStore.getState().currentPost;
 
@@ -36,16 +46,21 @@ const RecipeDetailScreen = ({ postId }: Props) => {
     }
   };
 
-  const handleSharePress = async () => {
-    try {
-      if (post) {
-        await Share.share({
-          message: `Check out this amazing recipe: ${post.title} on Vegify! 🌿`,
-        });
-      }
-    } catch (err: any) {
-      console.error("❌ SHARE_EXECUTION_FAILED:", err.message);
-    }
+  const openShareMenu = () => {
+    setShareMenuVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeShareMenu = () => {
+    Animated.timing(slideAnim, {
+      toValue: 300,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => setShareMenuVisible(false));
   };
 
   const handleNavigateComments = () => {
@@ -73,14 +88,6 @@ const RecipeDetailScreen = ({ postId }: Props) => {
         </View>
       </SafeAreaView>
     );
-  const circleIconStyle = {
-    justifyContent: "center" as const,
-    alignItems: "center" as const,
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -152,7 +159,7 @@ const RecipeDetailScreen = ({ postId }: Props) => {
             style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
             activeOpacity={0.7}
           >
-            <View style={[circleIconStyle]}>
+            <View style={localStyles.circleIconLayoutWrapper}>
               <View style={{ transform: [{ scaleX: -1 }] }}>
                 <Ionicons
                   name={post.isLiked ? "leaf" : "leaf-outline"}
@@ -171,7 +178,7 @@ const RecipeDetailScreen = ({ postId }: Props) => {
             style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
             onPress={handleNavigateComments}
           >
-            <View style={circleIconStyle}>
+            <View style={localStyles.circleIconLayoutWrapper}>
               <Ionicons name="chatbubble-outline" size={20} color="white" />
             </View>
             <Text style={{ color: "white", fontSize: 14, fontWeight: "500" }}>
@@ -180,12 +187,17 @@ const RecipeDetailScreen = ({ postId }: Props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={handleSharePress}
+            onPress={openShareMenu}
+            activeOpacity={0.7}
             style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
           >
-            <View style={circleIconStyle}>
-              <Ionicons name="share-social-outline" size={20} color="white" />
+            <View style={localStyles.circleIconLayoutWrapper}>
+              <Ionicons name="share-social-outline" size={20} color="#ffffff" />
             </View>
+
+            <Text style={{ color: "white", fontSize: 14, fontWeight: "500" }}>
+              {post?.sharesCount || 0}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -204,8 +216,127 @@ const RecipeDetailScreen = ({ postId }: Props) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={shareMenuVisible}
+        transparent
+        animationType="none"
+        onRequestClose={closeShareMenu}
+      >
+        <Pressable style={localStyles.modalOverlay} onPress={closeShareMenu}>
+          <Animated.View
+            style={[
+              localStyles.slidingSheetContainer,
+              { transform: [{ translateY: slideAnim }] },
+            ]}
+          >
+            <View style={localStyles.sheetHandleIndicator} />
+            <Text style={localStyles.sheetHeaderTitle}>Share Recipe</Text>
+
+            <TouchableOpacity
+              style={localStyles.sheetActionButtonRow}
+              onPress={() => {
+                closeShareMenu();
+                handleCopyRecipeLink(post._id, post.title, (newCount) => {
+                  post.sharesCount = newCount;
+                });
+              }}
+            >
+              <View style={localStyles.actionIconContainer}>
+                <Ionicons name="link-outline" size={20} color="#99CC33" />
+              </View>
+              <Text style={localStyles.actionButtonLabelText}>
+                Copy Recipe Link
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={localStyles.sheetActionButtonRow}
+              onPress={() => {
+                closeShareMenu();
+                handleNativeShareRecipe(post._id, post.title, (newCount) => {
+                  post.sharesCount = newCount;
+                });
+              }}
+            >
+              <View style={localStyles.actionIconContainer}>
+                <Ionicons name="apps-outline" size={20} color="#99CC33" />
+              </View>
+              <Text style={localStyles.actionButtonLabelText}>
+                Share via other Apps
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
+
+const localStyles = StyleSheet.create({
+  circleIconLayoutWrapper: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+  },
+  slidingSheetContainer: {
+    backgroundColor: "#162202",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    paddingTop: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  sheetHandleIndicator: {
+    width: 40,
+    height: 5,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 3,
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  sheetHeaderTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  sheetActionButtonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.02)",
+  },
+  actionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(153, 204, 51, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  actionButtonLabelText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "500",
+  },
+});
 
 export default RecipeDetailScreen;

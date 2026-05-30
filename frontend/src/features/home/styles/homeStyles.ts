@@ -22,6 +22,7 @@ export const homeStyles = StyleSheet.create({
     fontSize: 16,
     opacity: 0.6,
   },
+
   // Recipe Detail Styles
   scrollContent: { paddingBottom: 40 },
   headerContent: { padding: 20 },
