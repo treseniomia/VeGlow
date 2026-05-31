@@ -5,9 +5,10 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface HeaderProps {
   title: string;
+  rightAction?: React.ReactNode;
 }
 
-export const HeaderWithBack = ({ title }: HeaderProps) => {
+export const HeaderWithBack = ({ title, rightAction }: HeaderProps) => {
   const router = useRouter();
 
   const handleBack = () => {
@@ -30,6 +31,7 @@ export const HeaderWithBack = ({ title }: HeaderProps) => {
         <Ionicons name="arrow-back" size={24} color="#99CC33" />
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
+      {rightAction && <View style={styles.rightAction}>{rightAction}</View>}
     </View>
   );
 };
@@ -49,5 +51,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#99CC33",
+    flex: 1,
+  },
+  rightAction: {
+    marginLeft: "auto",
   },
 });

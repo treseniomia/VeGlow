@@ -7,6 +7,11 @@ import {
   deletePost,
   updatePost,
   togglePostLike,
+  toggleSavePost,
+  getSavedPosts,
+  hidePost,
+  unhidePost,
+  getHiddenPosts,
 } from "../controllers/postController";
 import { protect, optionalProtect } from "../middleware/authMiddleware";
 import { incrementShareCount } from "../controllers/postController";
@@ -27,12 +32,18 @@ router.post("/", protect, createPost);
  * @access  Public / Optional (Reads JWT token if available to evaluate persistent like state markers)
  */
 router.get("/", optionalProtect, getAllPosts);
+router.get("/saved", protect, getSavedPosts);
+router.get("/hidden", protect, getHiddenPosts);
 router.get("/:id", optionalProtect, getPostById);
 
 router.patch("/:id", protect, updatePost);
 router.delete("/:id", protect, deletePost);
 
 router.post("/:postId/like", protect, togglePostLike);
+
+router.patch("/:id/save", protect, toggleSavePost);
+router.patch("/:id/hide", protect, hidePost);
+router.patch("/:id/unhide", protect, unhidePost);
 
 router.patch("/:id/share-increment", incrementShareCount);
 

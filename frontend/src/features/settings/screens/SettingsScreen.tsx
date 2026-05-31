@@ -54,6 +54,21 @@ export default function SettingsScreen() {
         />
       </View>
 
+      {/* 3. Saved Recipes Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>My Content</Text>
+        <SettingItem
+          icon="bookmark-outline"
+          label="Saved Recipes"
+          onPress={() => router.push("/saved-posts")}
+        />
+        <SettingItem
+          icon="eye-off-outline"
+          label="Hidden Posts"
+          onPress={() => router.push("/hidden-posts")}
+        />
+      </View>
+
       {/* 3. Logout Section */}
       <View style={styles.section}>
         <LogoutButton onPress={handleLogout} />
