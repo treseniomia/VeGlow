@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Post from "../models/Post";
 import { Like } from "../models/Like";
+import User from "../models/User";
 import { deleteFromCloudinary } from "../utils/cloudinary";
 
 export const createPost = async (req: any, res: Response) => {
@@ -45,8 +46,8 @@ export const createPost = async (req: any, res: Response) => {
       ingredients: Array.isArray(ingredients)
         ? ingredients
         : typeof ingredients === "string"
-        ? ingredients.split(",").map((i) => i.trim())
-        : [],
+          ? ingredients.split(",").map((i) => i.trim())
+          : [],
       nutritionList: Array.isArray(parsedNutrition) ? parsedNutrition : [],
       benefitsList: Array.isArray(parsedBenefits) ? parsedBenefits : [],
       mediaUrls: Array.isArray(mediaUrls) ? mediaUrls : [],
@@ -75,19 +76,45 @@ export const getAllPosts = async (req: any, res: Response) => {
 
     const currentUserId = req.user?._id;
 
-    const postsWithLikeStatus = await Promise.all(
+    const postsWithStatus = await Promise.all(
       posts.map(async (post: any) => {
         const hasLiked = currentUserId
           ? await Like.findOne({ user: currentUserId, post: post._id })
           : null;
+
+        let isSaved = false;
+        let isHidden = false;
+
+        if (currentUserId) {
+          const user = await User.findById(currentUserId).lean();
+          isSaved =
+            user?.savedPosts?.some(
+              (savedPostId: any) =>
+                savedPostId.toString() === post._id.toString(),
+            ) || false;
+
+          const hiddenPost = user?.hiddenPosts?.find(
+            (hiddenPost: any) =>
+              hiddenPost.postId.toString() === post._id.toString(),
+          );
+
+          if (hiddenPost) {
+            isHidden = true;
+          }
+        }
+
         return {
           ...post,
           isLiked: !!hasLiked,
+          isSaved,
+          isHidden,
         };
-      })
+      }),
     );
 
-    return res.status(200).json(postsWithLikeStatus);
+    const visiblePosts = postsWithStatus.filter((post: any) => !post.isHidden);
+
+    return res.status(200).json(visiblePosts);
   } catch (error) {
     return res.status(500).json({ message: "Error fetching posts", error });
   }
@@ -108,12 +135,22 @@ export const getPostById = async (req: any, res: Response) => {
       ? await Like.findOne({ user: currentUserId, post: post._id })
       : null;
 
-    const postWithLikeStatus = {
+    let isSaved = false;
+    if (currentUserId) {
+      const user = await User.findById(currentUserId).lean();
+      isSaved =
+        user?.savedPosts?.some(
+          (savedPostId: any) => savedPostId.toString() === post._id.toString(),
+        ) || false;
+    }
+
+    const postWithStatus = {
       ...post,
       isLiked: !!hasLiked,
+      isSaved,
     };
 
-    return res.status(200).json(postWithLikeStatus);
+    return res.status(200).json(postWithStatus);
   } catch (error: any) {
     return res
       .status(500)
@@ -135,20 +172,29 @@ export const getMyPosts = async (req: any, res: Response) => {
 
     const currentUserId = req.user._id;
 
-    const postsWithLikeStatus = await Promise.all(
+    const postsWithStatus = await Promise.all(
       posts.map(async (post: any) => {
         const hasLiked = await Like.findOne({
           user: currentUserId,
           post: post._id,
         });
+
+        const user = await User.findById(currentUserId).lean();
+        const isSaved =
+          user?.savedPosts?.some(
+            (savedPostId: any) =>
+              savedPostId.toString() === post._id.toString(),
+          ) || false;
+
         return {
           ...post,
           isLiked: !!hasLiked,
+          isSaved,
         };
-      })
+      }),
     );
 
-    return res.status(200).json(postsWithLikeStatus);
+    return res.status(200).json(postsWithStatus);
   } catch (error: any) {
     console.error("❌ GET_MY_POSTS ERROR:", error.message);
     return res
@@ -200,7 +246,7 @@ export const updatePost = async (req: any, res: Response) => {
     const updatedPost = await Post.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true },
     );
 
     return res.status(200).json({ success: true, data: updatedPost });
@@ -211,7 +257,7 @@ export const updatePost = async (req: any, res: Response) => {
 
 export const togglePostLike = async (
   req: any,
-  res: Response
+  res: Response,
 ): Promise<Response> => {
   const { postId } = req.params;
   const userId = req.user?._id;
@@ -238,7 +284,7 @@ export const togglePostLike = async (
       const updatedPost = await Post.findByIdAndUpdate(
         postId,
         { $inc: { likesCount: -1 } },
-        { returnDocument: "after", select: "likesCount" }
+        { returnDocument: "after", select: "likesCount" },
       );
 
       return res.status(200).json({
@@ -253,7 +299,7 @@ export const togglePostLike = async (
       const updatedPost = await Post.findByIdAndUpdate(
         postId,
         { $inc: { likesCount: 1 } },
-        { returnDocument: "after", select: "likesCount" }
+        { returnDocument: "after", select: "likesCount" },
       );
 
       return res.status(200).json({
@@ -283,7 +329,7 @@ export const incrementShareCount = async (req: Request, res: Response) => {
     const updatedPost = await Post.findByIdAndUpdate(
       id,
       { $inc: { sharesCount: 1 } },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     );
 
     if (!updatedPost) {
@@ -306,5 +352,258 @@ export const incrementShareCount = async (req: Request, res: Response) => {
       message: "Server Error processing share increment request.",
       error: error.message,
     });
+  }
+};
+
+export const toggleSavePost = async (
+  req: any,
+  res: Response,
+): Promise<Response> => {
+  const { id } = req.params;
+  const userId = req.user?._id;
+
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized. Session required." });
+  }
+
+  try {
+    const postExists = await Post.findById(id);
+    if (!postExists) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Recipe post not found." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    const isPostSaved = user.savedPosts?.includes(id as any);
+
+    if (isPostSaved) {
+      await User.findByIdAndUpdate(
+        userId,
+        { $pull: { savedPosts: id } },
+        { returnDocument: "after" },
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Post unsaved.",
+        isSaved: false,
+      });
+    } else {
+      await User.findByIdAndUpdate(
+        userId,
+        { $push: { savedPosts: id } },
+        { returnDocument: "after" },
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Post saved.",
+        isSaved: true,
+      });
+    }
+  } catch (error: any) {
+    console.error("❌ Toggle Save Post Error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const getSavedPosts = async (
+  req: any,
+  res: Response,
+): Promise<Response> => {
+  const userId = req.user?._id;
+
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized. Session required." });
+  }
+
+  try {
+    const user = await User.findById(userId).populate("savedPosts");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    const savedPostsReversed = (user.savedPosts || []).reverse();
+
+    return res.status(200).json({
+      success: true,
+      savedPosts: savedPostsReversed,
+    });
+  } catch (error: any) {
+    console.error("❌ Get Saved Recipes Error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const hidePost = async (req: any, res: Response) => {
+  const userId = req.user?._id;
+  const { id } = req.params;
+
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized. Session required." });
+  }
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    const isAlreadyHidden = user.hiddenPosts?.some(
+      (hiddenPost: any) => hiddenPost.postId.toString() === id,
+    );
+
+    if (isAlreadyHidden) {
+      return res.status(200).json({
+        success: true,
+        message: "Post already hidden.",
+        isHidden: true,
+      });
+    }
+
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: {
+          hiddenPosts: {
+            postId: id,
+            hiddenAt: new Date(),
+          },
+        },
+        $pull: {
+          savedPosts: id,
+        },
+      },
+      { returnDocument: "after" },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Post hidden.",
+      isHidden: true,
+      isSaved: false,
+    });
+  } catch (error: any) {
+    console.error("❌ Hide Post Error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const unhidePost = async (req: any, res: Response) => {
+  const userId = req.user?._id;
+  const { id } = req.params;
+
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized. Session required." });
+  }
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        $pull: {
+          hiddenPosts: { postId: id },
+        },
+      },
+      { returnDocument: "after" },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Post unhidden.",
+      isHidden: false,
+    });
+  } catch (error: any) {
+    console.error("❌ Unhide Post Error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const getHiddenPosts = async (
+  req: any,
+  res: Response,
+): Promise<Response> => {
+  const userId = req.user?._id;
+
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized. Session required." });
+  }
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    const hiddenPostIds =
+      user.hiddenPosts?.map((hiddenPost: any) => hiddenPost.postId) || [];
+
+    const posts = await Post.find({ _id: { $in: hiddenPostIds } })
+      .populate("user", "name")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const postsWithHiddenAt = posts.map((post: any) => {
+      const hiddenPost = user.hiddenPosts?.find(
+        (hiddenPost: any) =>
+          hiddenPost.postId.toString() === post._id.toString(),
+      );
+      return {
+        ...post,
+        hiddenAt: hiddenPost?.hiddenAt,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      hiddenPosts: postsWithHiddenAt,
+    });
+  } catch (error: any) {
+    console.error("❌ Get Hidden Posts Error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
   }
 };

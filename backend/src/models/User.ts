@@ -25,10 +25,23 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
+    savedPosts: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+      default: [],
+    },
+    hiddenPosts: {
+      type: [
+        {
+          postId: { type: Schema.Types.ObjectId, ref: "Post" },
+          hiddenAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model("User", userSchema);

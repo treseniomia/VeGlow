@@ -7,6 +7,7 @@ import {
   Modal,
   Animated,
   Pressable,
+  Alert,
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -16,12 +17,18 @@ import {
   handleCopyRecipeLink,
   handleNativeShareRecipe,
 } from "@/utils/shareHelper";
+import { useSavePost } from "@/features/settings/hooks/useSavePost";
+import { useHidePost } from "@/features/settings/hooks/useHidePost";
 
 const PostCard = ({ post }: { post: any }) => {
   const toggleLike = usePostStore((state) => state.toggleLikeOptimistic);
+  const { toggleSavePost, isSaving } = useSavePost();
+  const { hidePost, isHiding } = useHidePost();
 
   const [shareMenuVisible, setShareMenuVisible] = useState(false);
+  const [optionsMenuVisible, setOptionsMenuVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(300)).current;
+  const optionsSlideAnim = useRef(new Animated.Value(300)).current;
 
   const handleNavigateRecipe = () => {
     router.push(`/recipe/${post._id}`);
@@ -50,6 +57,49 @@ const PostCard = ({ post }: { post: any }) => {
       duration: 200,
       useNativeDriver: true,
     }).start(() => setShareMenuVisible(false));
+  };
+
+  const openOptionsMenu = () => {
+    setOptionsMenuVisible(true);
+    Animated.timing(optionsSlideAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeOptionsMenu = () => {
+    Animated.timing(optionsSlideAnim, {
+      toValue: 300,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => setOptionsMenuVisible(false));
+  };
+
+  const handleSavePost = async () => {
+    closeOptionsMenu();
+    await toggleSavePost(post._id);
+  };
+
+  const handleHidePost = async () => {
+    closeOptionsMenu();
+    Alert.alert(
+      "Hide Post",
+      "Are you sure you want to hide this recipe? This will also remove it from your saved posts if it was saved.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Hide",
+          style: "destructive",
+          onPress: async () => {
+            await hidePost(post._id);
+          },
+        },
+      ],
+    );
   };
 
   const iconName = "leaf" as const;
@@ -128,8 +178,14 @@ const PostCard = ({ post }: { post: any }) => {
             </Text>
           </View>
 
-          <View style={styles.ratingBadge}>
-            <Text style={styles.ratingText}>4.9</Text>
+          <View style={styles.headerRightSection}>
+            <TouchableOpacity
+              style={styles.optionsButton}
+              onPress={openOptionsMenu}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -199,6 +255,88 @@ const PostCard = ({ post }: { post: any }) => {
           </Animated.View>
         </Pressable>
       </Modal>
+
+      <Modal
+        visible={optionsMenuVisible}
+        transparent
+        animationType="none"
+        onRequestClose={closeOptionsMenu}
+      >
+        <Pressable style={styles.modalOverlay} onPress={closeOptionsMenu}>
+          <Animated.View
+            style={[
+              styles.slidingSheetContainer,
+              { transform: [{ translateY: optionsSlideAnim }] },
+            ]}
+          >
+            <View style={styles.sheetHandleIndicator} />
+            <Text style={styles.sheetHeaderTitle}>Post Options</Text>
+
+            <TouchableOpacity
+              style={styles.sheetActionButtonRow}
+              onPress={handleSavePost}
+              disabled={isSaving}
+            >
+              <View style={styles.actionIconContainer}>
+                <Ionicons
+                  name={post.isSaved ? "bookmark" : "bookmark-outline"}
+                  size={20}
+                  color="#99CC33"
+                />
+              </View>
+              <Text style={styles.actionButtonLabelText}>
+                {post.isSaved ? "Unsave Post" : "Save Post"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetActionButtonRow}
+              onPress={() => {
+                closeOptionsMenu();
+                handleCopyRecipeLink(post._id, post.title, (newCount) => {
+                  post.sharesCount = newCount;
+                });
+              }}
+            >
+              <View style={styles.actionIconContainer}>
+                <Ionicons name="link-outline" size={20} color="#99CC33" />
+              </View>
+              <Text style={styles.actionButtonLabelText}>Copy Link</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetActionButtonRow}
+              onPress={handleHidePost}
+              disabled={isHiding}
+            >
+              <View style={styles.actionIconContainer}>
+                <Ionicons name="eye-off-outline" size={20} color="#99CC33" />
+              </View>
+              <Text style={styles.actionButtonLabelText}>Hide</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetActionButtonRow}
+              onPress={() => {
+                closeOptionsMenu();
+              }}
+            >
+              <View style={styles.actionIconContainer}>
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={20}
+                  color="#FF6B6B"
+                />
+              </View>
+              <Text
+                style={[styles.actionButtonLabelText, { color: "#FF6B6B" }]}
+              >
+                Report
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -238,6 +376,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
+  headerRightSection: {
+    alignItems: "center",
+    gap: 8,
+  },
   title: { color: "white", fontSize: 22, fontWeight: "bold" },
   author: { color: "rgba(255,255,255,0.6)", fontSize: 14, marginTop: 4 },
   ratingBadge: {
@@ -247,6 +389,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   ratingText: { color: "#99CC33", fontWeight: "bold", fontSize: 16 },
+  optionsButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.05)",
+  },
   tagContainer: { flexDirection: "row", flexWrap: "wrap", marginVertical: 10 },
   tag: {
     backgroundColor: "rgba(0,0,0,0.3)",

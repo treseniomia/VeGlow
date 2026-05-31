@@ -9,6 +9,7 @@ import {
   Animated,
   Pressable,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HeaderWithBack } from "@/components/HeaderWithBack";
@@ -24,6 +25,7 @@ import {
   handleCopyRecipeLink,
   handleNativeShareRecipe,
 } from "@/utils/shareHelper";
+import { useSavePost } from "@/features/settings/hooks/useSavePost";
 
 interface Props {
   postId: string;
@@ -33,12 +35,15 @@ const RecipeDetailScreen = ({ postId }: Props) => {
   const { posts, toggleLikeOptimistic } = usePostStore();
   const { loading, error } = useFetchPostById(postId);
   const isFocused = useIsFocused();
+  const { toggleSavePost, isSaving } = useSavePost();
 
   const [shareMenuVisible, setShareMenuVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(300)).current;
 
   const post =
     posts.find((p) => p._id === postId) || usePostStore.getState().currentPost;
+
+  const isSaved = post?.isSaved || false;
 
   const handleLikePress = async () => {
     if (post?._id) {
@@ -69,6 +74,35 @@ const RecipeDetailScreen = ({ postId }: Props) => {
     }
   };
 
+  const handleSaveToggle = async () => {
+    if (!post?._id) return;
+
+    try {
+      await toggleSavePost(post._id);
+    } catch (error: any) {
+      console.error("❌ SAVE_TOGGLE_ERROR:", error);
+      Alert.alert(
+        "Error",
+        "Failed to save recipe. Please check your connection and try again.",
+      );
+    }
+  };
+
+  const bookmarkIcon = (
+    <TouchableOpacity
+      onPress={handleSaveToggle}
+      disabled={isSaving}
+      hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+      style={{ padding: 8 }}
+    >
+      <Ionicons
+        name={isSaved ? "bookmark" : "bookmark-outline"}
+        size={24}
+        color={isSaved ? "#99CC33" : "#fff"}
+      />
+    </TouchableOpacity>
+  );
+
   if (loading && !post)
     return (
       <SafeAreaView style={styles.container} edges={["top"]}>
@@ -91,7 +125,7 @@ const RecipeDetailScreen = ({ postId }: Props) => {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <HeaderWithBack title="Recipe Detail" />
+      <HeaderWithBack title="Recipe Detail" rightAction={bookmarkIcon} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -210,10 +244,10 @@ const RecipeDetailScreen = ({ postId }: Props) => {
             />
             <Text style={styles.cookButtonText}>COOK MODE</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.addMealButton}>
+          {/* <TouchableOpacity style={styles.addMealButton}>
             <Ionicons name="bookmark-outline" size={18} color="#99CC33" />
             <Text style={styles.addMealText}>Add to Meal Plan</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </ScrollView>
 
