@@ -27,4 +27,9 @@ export const profileService = {
     const response = await API.patch(`/posts/${postId}`, postData);
     return response.data;
   },
+
+  deleteReel: async (reelId: string) => {
+    const response = await API.delete(`/reels/${reelId}`);
+    return response.data;
+  },
 };

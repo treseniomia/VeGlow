@@ -6,6 +6,8 @@ import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
 import { v2 as cloudinary } from "cloudinary";
 import commentRoutes from "./routes/commentRoutes";
+import reelRoutes from "./routes/reelRoutes";
+import reelInteractionRoutes from "./routes/reelInteractionRoutes";
 import { errorHandler } from "./middleware/errorMiddleware";
 
 dotenv.config();
@@ -39,6 +41,8 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/reels", reelRoutes);
+app.use("/api/reels-interactions", reelInteractionRoutes);
 
 // CRITICAL SENIOR MOVE: Dapat nasa pinakababa ng lahat ng routers para gumana ang interceptor!
 app.use(errorHandler);

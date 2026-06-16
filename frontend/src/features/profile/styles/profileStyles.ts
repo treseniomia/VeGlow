@@ -4,14 +4,35 @@ import { VegifyTheme } from "@/constants/theme";
 export const profileStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#0B1204",
   },
   header: {
-    backgroundColor: "white",
-    padding: 40,
+    backgroundColor: "#1A260F",
+    padding: 20,
+    flexDirection: "row",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
+    borderBottomColor: "#2C3E1D",
+  },
+  userInfo: {
+    flex: 1,
+    marginLeft: 20,
+  },
+  statsRow: {
+    flexDirection: "row",
+    marginTop: 8,
+  },
+  statItem: {
+    marginRight: 20,
+  },
+  statNumber: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  statLabel: {
+    color: "#A9A9A9",
+    fontSize: 12,
   },
   avatarPlaceholder: {
     width: 80,
@@ -42,7 +63,7 @@ export const profileStyles = StyleSheet.create({
   userName: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#333",
+    color: "#FFF",
   },
   userEmail: {
     fontSize: 14,
