@@ -1,12 +1,6 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { ReelsFeedScreen } from "../../src/features/reels/screens/ReelsFeedScreen";
 
 export default function reels() {
-  return (
-    <View>
-      <Text>reels</Text>
-    </View>
-  );
+  return <ReelsFeedScreen />;
 }
-
-const styles = StyleSheet.create({});
