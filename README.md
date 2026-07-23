@@ -1,4 +1,4 @@
-# VegifyApp-Official
+# Veglow
 
 Open the website of MongoDB and iconnect ang IP ADDRESS
 
