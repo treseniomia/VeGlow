@@ -1,11 +1,10 @@
-
-# 🥗 VeGlow
+# VeGlow
 
 > **VeGlow** is a modern, full-stack mobile application built for plant-based food enthusiasts. It serves as a community platform to discover and share vegan recipes, post short-form video reels, and connect with like-minded foodies.
 
 ---
 
-## ✨ Features
+## Features
 
 * **🌱 Recipe Sharing & Feed:** Post plant-based recipes with photos, steps, and rich details.
 * **🎥 Short-Video Reels:** Upload and watch short-form cooking and lifestyle videos.
@@ -15,7 +14,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### **Frontend (Mobile)**
 * **Framework:** React Native 
