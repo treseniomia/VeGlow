@@ -8,7 +8,7 @@
 
 * **🌱 Recipe Sharing & Feed:** Post plant-based recipes with photos, steps, and rich details.
 * **🎥 Short-Video Reels:** Upload and watch short-form cooking and lifestyle videos.
-* **💬 Social Engagement:** Like, comment, and save your favorite posts and reels.
+* **💬 Social Engagement:** , comment, and save your favorite posts and reels.
 * **👤 User Profiles:** Customizable profile pages showing user activity, saved posts, and uploaded content.
 * **🔒 Secure Authentication:** JWT-based user authentication with secure token management.
 
